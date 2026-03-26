@@ -533,3 +533,17 @@ button {
   font-weight: bold;
   color: var(--text);
 }
+.bank-logos {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bank-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  background: rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 4px;
+}
