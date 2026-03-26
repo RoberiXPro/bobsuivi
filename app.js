@@ -25,7 +25,7 @@ const banks = [
   },
   {
     key: "boa_microcred_acces",
-    label: "BOA / Accès",
+    label: "BOA / Autres",
     logos: ["boa.png", "acces.png"]
   }
 ];
