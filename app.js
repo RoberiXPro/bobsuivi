@@ -8,10 +8,10 @@ const flows = {
 };
 
 const banks = [
-  { key: "bmoi", label: "BMOI" },
-  { key: "mcb", label: "MCB" },
-  { key: "bni_bred", label: "BNI & BRED" },
-  { key: "boa_microcred_acces", label: "BOA, MicroCred & Accès" }
+  { key: "bmoi", label: "BMOI", logo: "https://cdn-icons-png.flaticon.com/512/2830/2830284.png" },
+  { key: "mcb", label: "MCB", logo: "https://cdn-icons-png.flaticon.com/512/2331/2331943.png" },
+  { key: "bni_bred", label: "BNI / BRED", logo: "https://cdn-icons-png.flaticon.com/512/3135/3135706.png" },
+  { key: "boa_microcred_acces", label: "BOA / MicroCred / Accès", logo: "https://cdn-icons-png.flaticon.com/512/3062/3062634.png" }
 ];
 
 function getStatusClass(value) {
@@ -79,14 +79,17 @@ function render() {
         <div class="card-inner">
           <h3>Statut des virements</h3>
 
-          ${banks.map(bank => `
-            <p>
-              ${bank.label} :
-              <span class="state-pill ${getStatusClass(data[bank.key])}">
-                ${data[bank.key] || "En attente"}
-              </span>
-            </p>
-          `).join("")}
+${banks.map(bank => `
+  <div class="bank-row">
+    <div class="bank-left">
+      <img src="${bank.logo}" alt="${bank.label}" class="bank-logo">
+      <span class="bank-label">${bank.label}</span>
+    </div>
+    <span class="state-pill ${getStatusClass(data[bank.key])}">
+      ${data[bank.key] || "En attente"}
+    </span>
+  </div>
+`).join("")}
 
         </div>
       </div>
