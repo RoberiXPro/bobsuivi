@@ -8,10 +8,26 @@ const flows = {
 };
 
 const banks = [
-  { key: "bmoi", label: "BMOI", logo: "https://cdn-icons-png.flaticon.com/512/2830/2830284.png" },
-  { key: "mcb", label: "MCB", logo: "https://cdn-icons-png.flaticon.com/512/2331/2331943.png" },
-  { key: "bni_bred", label: "BNI / BRED", logo: "https://cdn-icons-png.flaticon.com/512/3135/3135706.png" },
-  { key: "boa_microcred_acces", label: "BOA / MicroCred / Accès", logo: "https://cdn-icons-png.flaticon.com/512/3062/3062634.png" }
+  {
+    key: "bmoi",
+    label: "BMOI",
+    logos: ["images/bmoi.png"]
+  },
+  {
+    key: "mcb",
+    label: "MCB",
+    logos: ["images/mcb.png"]
+  },
+  {
+    key: "bni_bred",
+    label: "BNI / BRED",
+    logos: ["images/bni.png", "images/bred.png"]
+  },
+  {
+    key: "boa_microcred_acces",
+    label: "BOA / Accès",
+    logos: ["images/boa.png", "images/acces.png"]
+  }
 ];
 
 function getStatusClass(value) {
