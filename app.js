@@ -97,10 +97,14 @@ function render() {
 
 ${banks.map(bank => `
   <div class="bank-row">
-    <div class="bank-left">
-      <img src="${bank.logo}" alt="${bank.label}" class="bank-logo">
-      <span class="bank-label">${bank.label}</span>
-    </div>
+<div class="bank-left">
+  <div class="bank-logos">
+    ${bank.logos.map(logo => `
+      <img src="${logo}" alt="${bank.label}" class="bank-logo">
+    `).join("")}
+  </div>
+  <span class="bank-label">${bank.label}</span>
+</div>
     <span class="state-pill ${getStatusClass(data[bank.key])}">
       ${data[bank.key] || "En attente"}
     </span>
