@@ -499,3 +499,37 @@ button {
     width: 100%;
   }
 }
+.bank-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bank-row:last-child {
+  border-bottom: none;
+}
+
+.bank-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.bank-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  display: block;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 6px;
+}
+
+.bank-label {
+  font-weight: bold;
+  color: var(--text);
+}
