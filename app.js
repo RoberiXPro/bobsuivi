@@ -11,22 +11,22 @@ const banks = [
   {
     key: "bmoi",
     label: "BMOI",
-    logos: ["images/bmoi.png"]
+    logos: ["bmoi.png"]
   },
   {
     key: "mcb",
     label: "MCB",
-    logos: ["images/mcb.png"]
+    logos: ["mcb.png"]
   },
   {
     key: "bni_bred",
     label: "BNI / BRED",
-    logos: ["images/bni.png", "images/bred.png"]
+    logos: ["bni.png", "bred.png"]
   },
   {
     key: "boa_microcred_acces",
     label: "BOA / Accès",
-    logos: ["images/boa.png", "images/acces.png"]
+    logos: ["boa.png", "acces.png"]
   }
 ];
 
