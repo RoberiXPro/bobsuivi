@@ -78,18 +78,21 @@ function render() {
         `).join("")}
       </div>
 
-      <div class="card">
-        <div class="card-inner">
-          <h2>${flows[currentTab]}</h2>
-          <p>Étape actuelle : ${data.currentStep || "-"}</p>
-
-          <div class="progress-bar">
-            <div class="progress-value" style="width:${progress}%"></div>
-          </div>
-
-          <p>${progress}%</p>
-        </div>
+<div class="card hero-card">
+  <div class="card-inner">
+    <div class="hero-head">
+      <div>
+        <h2>${flows[currentTab]}</h2>
+        <p class="hero-step">Étape actuelle : ${data.currentStep || "-"}</p>
       </div>
+      <div class="progress-badge">${progress}%</div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-value" style="width:${progress}%"></div>
+    </div>
+  </div>
+</div>
 
       <div class="card">
         <div class="card-inner">
