@@ -1,4 +1,4 @@
-let currentTab = "monthly_pay";
+let currentTab = localStorage.getItem("currentTab") || "monthly_pay";
 let remoteData = {};
 
 const flows = {
