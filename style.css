@@ -569,3 +569,16 @@ button {
   border-radius: 8px;
   padding: 4px;
 }
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: bold;
+  background: rgba(54, 211, 153, 0.14);
+  border: 1px solid rgba(54, 211, 153, 0.22);
+  color: #8ef0c7;
+  white-space: nowrap;
+}
