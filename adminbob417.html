@@ -224,6 +224,20 @@ const fields = [
   alert("Mis à jour !");
 }
   </script>
+<script>
+  function toggleAdvanceFields() {
+    const type = document.getElementById("type").value;
+    const block = document.getElementById("advanceDatesFields");
 
+    if (type === "advance_15n") {
+      block.style.display = "block";
+    } else {
+      block.style.display = "none";
+    }
+  }
+
+  document.getElementById("type").addEventListener("change", toggleAdvanceFields);
+  toggleAdvanceFields();
+</script>
 </body>
 </html>
