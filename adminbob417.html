@@ -55,21 +55,33 @@
   <script src="firebase.js"></script>
 
   <script>
-    function updateData() {
-      const type = document.getElementById("type").value;
+function updateData() {
+  const type = document.getElementById("type").value;
 
-      db.collection("statuses").doc(type).update({
-        currentStep: document.getElementById("currentStep").value,
-        statusLabel: document.getElementById("statusLabel").value,
-        bmoi: document.getElementById("bmoi").value,
-        mcb: document.getElementById("mcb").value,
-        bni_bred: document.getElementById("bni_bred").value,
-        boa_microcred_acces: document.getElementById("boa_microcred_acces").value,
-        updatedAt: new Date().toLocaleString()
-      });
+  const update = {};
 
-      alert("Mis à jour !");
+  const fields = [
+    "currentStep",
+    "statusLabel",
+    "bmoi",
+    "mcb",
+    "bni_bred",
+    "boa_microcred_acces"
+  ];
+
+  fields.forEach(field => {
+    const value = document.getElementById(field).value.trim();
+    if (value !== "") {
+      update[field] = value;
     }
+  });
+
+  update.updatedAt = new Date().toLocaleString();
+
+  db.collection("statuses").doc(type).update(update);
+
+  alert("Mis à jour !");
+}
   </script>
 
 </body>
