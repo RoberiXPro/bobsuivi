@@ -78,7 +78,7 @@ function render() {
 ${Object.keys(flows).map(key => `
   <button class="tab-button ${key === currentTab ? "active" : ""}" data-tab="${key}">
     ${flows[key]}
-    ${key === "advance_15n" ? `<span class="tab-badge">Ouvert · 05/04</span>` : ""}
+    ${key === "advance_15n" ? `<span class="tab-badge ${isAdvanceOpen() ? "tab-open" : "tab-closed"}">${isAdvanceOpen() ? "Ouvert" : "Fermé"}</span>` : ""}
   </button>
 `).join("")}
       </div>
