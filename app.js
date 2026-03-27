@@ -71,11 +71,12 @@ function render() {
       <h1>💰 Suivi des Paies</h1>
 
       <div class="tabs">
-        ${Object.keys(flows).map(key => `
-          <button class="tab-button ${key === currentTab ? "active" : ""}" data-tab="${key}">
-            ${flows[key]}
-          </button>
-        `).join("")}
+${Object.keys(flows).map(key => `
+  <button class="tab-button ${key === currentTab ? "active" : ""}" data-tab="${key}">
+    ${flows[key]}
+    ${key === "advance_15n" ? `<span class="tab-badge">Ouvert · 05/04</span>` : ""}
+  </button>
+`).join("")}
       </div>
 
 <div class="card hero-card">
