@@ -118,12 +118,12 @@ function render() {
             <div>
               <h2>${flows[currentTab]}</h2>
               <p class="hero-step">Étape actuelle : ${data.currentStep || "-"}</p>
-              ${currentTab === "advance_15n" ? `
-                <p class="advance-dates">
-                  Ouvert le : ${advanceDates.open} <br>
-                  Fermé le : ${advanceDates.close}
-                </p>
-              ` : ""}
+${currentTab === "advance_15n" ? `
+  <p class="advance-dates">
+    Ouvert le : ${(remoteData["advance_15n"] && remoteData["advance_15n"].openDate) || advanceDates.open} <br>
+    Fermé le : ${(remoteData["advance_15n"] && remoteData["advance_15n"].closeDate) || advanceDates.close}
+  </p>
+` : ""}
             </div>
             <div class="progress-badge">${progress}%</div>
           </div>
