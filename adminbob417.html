@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Suivi Paies</title>
+</head>
+<body>
+
+  <h1>Admin - Mise à jour</h1>
+
+  <label>Type :</label>
+  <select id="type">
+    <option value="monthly_pay">Paie mensuelle</option>
+    <option value="advance_15n">Avance 15N</option>
+    <option value="monthly_bonus">Prime mensuelle</option>
+  </select>
+
+  <br><br>
+
+  <label>Étape actuelle :</label>
+  <input type="text" id="currentStep">
+
+  <br><br>
+
+  <label>Statut :</label>
+  <input type="text" id="statusLabel">
+
+  <br><br>
+
+  <label>BMOI :</label>
+  <input type="text" id="bmoi">
+
+  <br><br>
+
+  <label>MCB :</label>
+  <input type="text" id="mcb">
+
+  <br><br>
+
+  <label>BNI / BRED :</label>
+  <input type="text" id="bni_bred">
+
+  <br><br>
+
+  <label>BOA / Autres :</label>
+  <input type="text" id="boa_microcred_acces">
+
+  <br><br>
+
+  <button onclick="updateData()">Mettre à jour</button>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+  <script src="firebase.js"></script>
+
+  <script>
+    function updateData() {
+      const type = document.getElementById("type").value;
+
+      db.collection("statuses").doc(type).update({
+        currentStep: document.getElementById("currentStep").value,
+        statusLabel: document.getElementById("statusLabel").value,
+        bmoi: document.getElementById("bmoi").value,
+        mcb: document.getElementById("mcb").value,
+        bni_bred: document.getElementById("bni_bred").value,
+        boa_microcred_acces: document.getElementById("boa_microcred_acces").value,
+        updatedAt: new Date().toLocaleString()
+      });
+
+      alert("Mis à jour !");
+    }
+  </script>
+
+</body>
+</html>
