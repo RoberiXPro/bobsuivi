@@ -77,9 +77,14 @@ function getProgress(data) {
 }
 
 function isAdvanceOpen() {
+  const data = remoteData["advance_15n"] || {};
+
+  const open = data.openDate || advanceDates.open;
+  const close = data.closeDate || advanceDates.close;
+
   const today = new Date();
-  const openDate = new Date(advanceDates.open);
-  const closeDate = new Date(advanceDates.close);
+  const openDate = new Date(open);
+  const closeDate = new Date(close);
 
   today.setHours(0, 0, 0, 0);
   openDate.setHours(0, 0, 0, 0);
@@ -87,7 +92,6 @@ function isAdvanceOpen() {
 
   return today >= openDate && today <= closeDate;
 }
-
 function render() {
   const app = document.getElementById("app");
   const data = remoteData[currentTab] || {};
