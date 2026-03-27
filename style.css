@@ -145,6 +145,11 @@ button {
   background: transparent;
   color: var(--text);
   transition: 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .tab-button:hover {
