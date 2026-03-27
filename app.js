@@ -6,6 +6,10 @@ const flows = {
   advance_15n: "Avance 15N",
   monthly_bonus: "Prime mensuelle"
 };
+const advanceDates = {
+  open: "2026-04-01",
+  close: "2026-04-05"
+};
 
 const banks = [
   {
