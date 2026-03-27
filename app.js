@@ -156,9 +156,6 @@ ${currentTab === "advance_15n" ? `
         </div>
       </div>
     </div>
-    <footer class="app-footer">
-  © RoberiX417 - 2026
-</footer>
   `;
 
   document.querySelectorAll("[data-tab]").forEach(btn => {
