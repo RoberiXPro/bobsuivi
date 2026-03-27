@@ -231,38 +231,7 @@ select option {
   <script src="firebase.js"></script>
 
   <script>
-firebase.auth().onAuthStateChanged(user => {
-  if (!user) {
-    showLogin();
-  }
-});
 
-    function showLogin() {
-  document.body.innerHTML = `
-    <div style="display:flex;justify-content:center;align-items:center;height:100vh;">
-      <div style="background:#0b1730;padding:30px;border-radius:20px;width:300px;text-align:center;">
-        <h2>Connexion Admin</h2>
-        <input id="email" type="email" placeholder="Email" style="width:100%;margin-bottom:10px;padding:10px;">
-        <input id="password" type="password" placeholder="Mot de passe" style="width:100%;margin-bottom:15px;padding:10px;">
-        <button onclick="login()" style="padding:10px 20px;">Se connecter</button>
-      </div>
-    </div>
-  `;
-}
-
-    function showLogin() {
-  document.body.innerHTML = `
-    <div style="display:flex;justify-content:center;align-items:center;height:100vh;">
-      <div style="background:#0b1730;padding:30px;border-radius:20px;width:300px;text-align:center;">
-        <h2>Connexion Admin</h2>
-        <input id="email" type="email" placeholder="Email" style="width:100%;margin-bottom:10px;padding:10px;">
-        <input id="password" type="password" placeholder="Mot de passe" style="width:100%;margin-bottom:15px;padding:10px;">
-        <button onclick="login()" style="padding:10px 20px;">Se connecter</button>
-      </div>
-    </div>
-  `;
-}
-    
 function updateData() {
   const type = document.getElementById("type").value;
 
@@ -294,9 +263,100 @@ const fields = [
 }
   </script>
 <script>
+  firebase.auth().onAuthStateChanged(user => {
+    if (!user) {
+      showLogin();
+    }
+  });
+
+  function showLogin() {
+    document.body.innerHTML = `
+      <div style="display:flex;justify-content:center;align-items:center;height:100vh;">
+        <div style="background:#0b1730;padding:30px;border-radius:20px;width:320px;text-align:center;">
+          <h2>Connexion Admin</h2>
+          <input id="email" type="email" placeholder="Email" style="width:100%;margin-bottom:10px;padding:10px;">
+          <input id="password" type="password" placeholder="Mot de passe" style="width:100%;margin-bottom:15px;padding:10px;">
+          <button onclick="login()" style="padding:10px 20px;">Se connecter</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function login() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    firebase.auth().signInWithEmailAndPassword(email, password)
+      .then(() => {
+        alert("Connexion réussie");
+        location.reload();
+      })
+      .catch((error) => {
+        console.error("Erreur Firebase Auth :", error);
+        alert("Erreur de connexion : " + error.message);
+      });
+  }
+
+  function setAll(value) {
+    const fields = ["bmoi", "mcb", "bni_bred", "boa_microcred_acces"];
+
+    fields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.value = value;
+      }
+    });
+  }
+
+  function updateData() {
+    const user = firebase.auth().currentUser;
+
+    if (!user) {
+      alert("Vous devez être connecté.");
+      return;
+    }
+
+    const type = document.getElementById("type").value;
+    const update = {};
+
+    const fields = [
+      "currentStep",
+      "statusLabel",
+      "openDate",
+      "closeDate",
+      "bmoi",
+      "mcb",
+      "bni_bred",
+      "boa_microcred_acces"
+    ];
+
+    fields.forEach(field => {
+      const el = document.getElementById(field);
+      if (!el) return;
+
+      const value = el.value.trim();
+      if (value !== "") {
+        update[field] = value;
+      }
+    });
+
+    update.updatedAt = new Date().toLocaleString();
+
+    db.collection("statuses").doc(type).update(update)
+      .then(() => {
+        alert("Mis à jour !");
+      })
+      .catch((error) => {
+        console.error("Erreur Firestore :", error);
+        alert("Échec de la mise à jour : " + error.message);
+      });
+  }
+
   function toggleAdvanceFields() {
     const type = document.getElementById("type").value;
     const block = document.getElementById("advanceDatesFields");
+
+    if (!block) return;
 
     if (type === "advance_15n") {
       block.style.display = "block";
@@ -305,8 +365,11 @@ const fields = [
     }
   }
 
-  document.getElementById("type").addEventListener("change", toggleAdvanceFields);
-  toggleAdvanceFields();
+  const typeSelect = document.getElementById("type");
+  if (typeSelect) {
+    typeSelect.addEventListener("change", toggleAdvanceFields);
+    toggleAdvanceFields();
+  }
 </script>
 </body>
 </html>
