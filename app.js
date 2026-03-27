@@ -130,13 +130,13 @@ ${banks.map(bank => `
     </div>
   `;
 
-  document.querySelectorAll("[data-tab]").forEach(btn => {
-    btn.onclick = () => {
-      currentTab = btn.getAttribute("data-tab");
-      render();
-    };
-  });
-}
+document.querySelectorAll("[data-tab]").forEach(btn => {
+  btn.onclick = () => {
+    currentTab = btn.getAttribute("data-tab");
+    localStorage.setItem("currentTab", currentTab);
+    render();
+  };
+});
 
 function startApp() {
   db.collection("statuses").onSnapshot(snapshot => {
