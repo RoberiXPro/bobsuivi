@@ -230,38 +230,6 @@ select option {
  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="firebase.js"></script>
 
-  <script>
-
-function updateData() {
-  const type = document.getElementById("type").value;
-
-  const update = {};
-
-const fields = [
-  "currentStep",
-  "statusLabel",
-  "openDate",
-  "closeDate",
-  "bmoi",
-  "mcb",
-  "bni_bred",
-  "boa_microcred_acces"
-];
-
-  fields.forEach(field => {
-    const value = document.getElementById(field).value.trim();
-    if (value !== "") {
-      update[field] = value;
-    }
-  });
-
-  update.updatedAt = new Date().toLocaleString();
-
-  db.collection("statuses").doc(type).update(update);
-
-  alert("Mis à jour !");
-}
-  </script>
 <script>
   firebase.auth().onAuthStateChanged(user => {
     if (!user) {
