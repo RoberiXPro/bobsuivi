@@ -587,3 +587,9 @@ button {
   color: #8ef0c7;
   white-space: nowrap;
 }
+.advance-dates {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
