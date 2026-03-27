@@ -593,3 +593,14 @@ button {
   font-size: 14px;
   line-height: 1.6;
 }
+.tab-open {
+  background: rgba(54, 211, 153, 0.18);
+  border: 1px solid rgba(54, 211, 153, 0.35);
+  color: #8ef0c7;
+}
+
+.tab-closed {
+  background: rgba(255, 99, 71, 0.18);
+  border: 1px solid rgba(255, 99, 71, 0.35);
+  color: #ffb3a7;
+}
