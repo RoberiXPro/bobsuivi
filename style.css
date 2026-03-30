@@ -80,6 +80,14 @@ h1 {
   box-shadow: var(--shadow-lg);
 }
 
+.main-tabs {
+  margin-bottom: 18px;
+}
+
+.sub-tabs {
+  margin-bottom: 22px;
+}
+
 .tab-button {
   border: 1px solid transparent;
   border-radius: 18px;
@@ -178,8 +186,7 @@ h1 {
   content: "";
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.04) 36%, transparent 70%);
+  background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.04) 36%, transparent 70%);
   pointer-events: none;
 }
 
@@ -220,7 +227,8 @@ h1 {
   display: inline-block;
 }
 
-.progress-badge {
+.progress-badge,
+.rights-badge {
   min-width: 94px;
   text-align: center;
   padding: 14px 18px;
@@ -240,8 +248,7 @@ h1 {
   width: 100%;
   height: 28px;
   border-radius: 999px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
   overflow: hidden;
   position: relative;
   border: 1px solid rgba(255,255,255,0.08);
@@ -280,8 +287,7 @@ h1 {
   height: 100%;
   border-radius: 999px;
   position: relative;
-  background:
-    linear-gradient(90deg, #22d3ee 0%, #0ea5e9 45%, #67e8f9 100%);
+  background: linear-gradient(90deg, #22d3ee 0%, #0ea5e9 45%, #67e8f9 100%);
   box-shadow:
     0 0 24px rgba(34, 211, 238, 0.38),
     inset 0 1px 0 rgba(255,255,255,0.25);
@@ -293,8 +299,7 @@ h1 {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.28), rgba(255,255,255,0));
+  background: linear-gradient(180deg, rgba(255,255,255,0.28), rgba(255,255,255,0));
   opacity: 0.85;
 }
 
@@ -327,8 +332,7 @@ h1 {
   padding: 16px 18px;
   border: 1px solid rgba(255,255,255,0.07);
   border-radius: 18px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03));
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03));
   transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -339,8 +343,7 @@ h1 {
 .bank-row:hover {
   transform: translateY(-2px);
   border-color: rgba(83, 216, 255, 0.16);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.04));
+  background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.04));
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18);
 }
 
@@ -409,6 +412,161 @@ h1 {
   border-color: rgba(127, 138, 163, 0.24);
 }
 
+/* FORMULAIRES CALCULER SON DROIT */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #dbe8ff;
+}
+
+.form-group small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.form-group input::placeholder {
+  color: #88a0c8;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: rgba(83, 216, 255, 0.45);
+  box-shadow: 0 0 0 4px rgba(83, 216, 255, 0.12);
+  background: rgba(255,255,255,0.07);
+}
+
+.action-button {
+  margin-top: 22px;
+  border: none;
+  border-radius: 18px;
+  padding: 15px 20px;
+  min-height: 54px;
+  cursor: pointer;
+  font-weight: 800;
+  color: #04111d;
+  background: linear-gradient(135deg, var(--green), #7df3c7);
+  box-shadow: 0 14px 28px rgba(54, 211, 153, 0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.action-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 32px rgba(54, 211, 153, 0.28);
+}
+
+.action-button.danger {
+  background: linear-gradient(135deg, #ff7b72, #ffb0a8);
+  box-shadow: 0 14px 28px rgba(255, 123, 114, 0.22);
+}
+
+.action-button.info {
+  background: linear-gradient(135deg, #60a5fa, #93c5fd);
+  box-shadow: 0 14px 28px rgba(96, 165, 250, 0.22);
+}
+
+.action-button.cyan {
+  background: linear-gradient(135deg, #53d8ff, #7ee7ff);
+  box-shadow: 0 14px 28px rgba(83, 216, 255, 0.22);
+}
+
+.result-card-shell {
+  margin-top: 20px;
+}
+
+.result-card {
+  border-radius: 20px;
+  padding: 18px;
+  min-height: 80px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #eaf3ff;
+}
+
+.result-card.empty {
+  color: var(--muted);
+}
+
+.result-card.error {
+  background: rgba(255, 123, 114, 0.12);
+  border-color: rgba(255, 123, 114, 0.24);
+  color: #ffd2cd;
+}
+
+.result-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.result-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.result-line span {
+  color: #cfe0fb;
+}
+
+.result-line strong {
+  color: #ffffff;
+  text-align: right;
+}
+
+.result-line.total {
+  background: rgba(83, 216, 255, 0.08);
+  border-color: rgba(83, 216, 255, 0.16);
+}
+
+.result-line.total-net {
+  background: rgba(54, 211, 153, 0.12);
+  border-color: rgba(54, 211, 153, 0.18);
+}
+
+.result-line.negative {
+  background: rgba(255, 123, 114, 0.12);
+  border-color: rgba(255, 123, 114, 0.2);
+}
+
+.result-note {
+  margin-top: 10px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  color: #d2dff5;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
 .app-footer {
   margin-top: 26px;
   text-align: center;
@@ -432,7 +590,8 @@ h1 {
     align-items: stretch;
   }
 
-  .progress-badge {
+  .progress-badge,
+  .rights-badge {
     align-self: flex-start;
     min-width: 82px;
     font-size: 24px;
@@ -445,6 +604,19 @@ h1 {
 
   .state-pill {
     min-width: 0;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .result-line {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .result-line strong {
+    text-align: left;
   }
 }
 
@@ -483,5 +655,9 @@ h1 {
   .bank-logo {
     width: 38px;
     height: 38px;
+  }
+
+  .action-button {
+    width: 100%;
   }
 }
