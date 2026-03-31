@@ -3,6 +3,35 @@ let currentPayrollTab = localStorage.getItem("currentPayrollTab") || "monthly_pa
 let currentRightsTab = localStorage.getItem("currentRightsTab") || "resign_notice";
 let remoteData = {};
 
+let calculatorSettings = {
+  netRate: 0.87,
+  workingDaysPerMonth: 26,
+  monthlyHoursBase: 173.33,
+
+  noticeRules: {
+    default: 1,
+    after5Years: 1.5,
+    after10Years: 2
+  },
+
+  dismissalRules: {
+    firstSegmentRate: 0.25,
+    secondSegmentRate: 0.3333,
+    firstSegmentLimit: 10
+  },
+
+  bonusNotes: {
+    A_PLUS: 1.5,
+    A: 1.2,
+    B_PLUS: 1,
+    B: 0.75,
+    C: 0.35,
+    B_MINUS: 0.15
+  },
+
+  holidayRates: [1, 1.5, 2]
+};
+
 const payrollTabs = {
   monthly_pay: "Paie mensuelle",
   advance_15n: "Avance 15N",
@@ -49,6 +78,28 @@ function formatAr(value) {
   return `${safeValue.toLocaleString("fr-FR")} Ar`;
 }
 
+function mergeCalculatorSettings(remoteRules = {}) {
+  calculatorSettings = {
+    ...calculatorSettings,
+    ...remoteRules,
+    noticeRules: {
+      ...calculatorSettings.noticeRules,
+      ...(remoteRules.noticeRules || {})
+    },
+    dismissalRules: {
+      ...calculatorSettings.dismissalRules,
+      ...(remoteRules.dismissalRules || {})
+    },
+    bonusNotes: {
+      ...calculatorSettings.bonusNotes,
+      ...(remoteRules.bonusNotes || {})
+    },
+    holidayRates: Array.isArray(remoteRules.holidayRates) && remoteRules.holidayRates.length
+      ? remoteRules.holidayRates
+      : calculatorSettings.holidayRates
+  };
+}
+
 function getStatusClass(value) {
   const v = String(value || "").toLowerCase();
 
@@ -86,8 +137,37 @@ function getProgress(data) {
   if (step.includes("constat")) return 60;
   if (step.includes("sign")) return 80;
   if (step.includes("banque") || step.includes("virement")) return 90;
+  if (step.includes("positionné") || step.includes("positionne")) return 95;
+  if (step.includes("terminé") || step.includes("termine")) return 100;
 
   return 0;
+}
+
+function getProgressTone(progress) {
+  const value = Number(progress) || 0;
+
+  if (value >= 70) return "good";
+  if (value >= 30) return "medium";
+  return "low";
+}
+
+function getBestPayrollTab() {
+  const keys = Object.keys(payrollTabs);
+
+  if (!keys.length) return null;
+
+  let bestKey = keys[0];
+  let bestProgress = getProgress(remoteData[bestKey] || {});
+
+  keys.forEach((key) => {
+    const currentProgress = getProgress(remoteData[key] || {});
+    if (currentProgress > bestProgress) {
+      bestProgress = currentProgress;
+      bestKey = key;
+    }
+  });
+
+  return bestKey;
 }
 
 function isAdvanceOpen() {
@@ -118,32 +198,6 @@ function renderMainTabs() {
       </button>
     </div>
   `;
-}
-function getProgressTone(progress) {
-  const value = Number(progress) || 0;
-
-  if (value >= 70) return "good";
-  if (value >= 30) return "medium";
-  return "low";
-}
-
-function getBestPayrollTab() {
-  const keys = Object.keys(payrollTabs);
-
-  if (!keys.length) return null;
-
-  let bestKey = keys[0];
-  let bestProgress = getProgress(remoteData[bestKey] || {});
-
-  keys.forEach((key) => {
-    const currentProgress = getProgress(remoteData[key] || {});
-    if (currentProgress > bestProgress) {
-      bestProgress = currentProgress;
-      bestKey = key;
-    }
-  });
-
-  return bestKey;
 }
 
 function renderPayrollTabs() {
@@ -191,6 +245,24 @@ function renderRightsTabs() {
   `;
 }
 
+function renderCircularProgress(progress) {
+  const safeProgress = Math.max(0, Math.min(100, Number(progress) || 0));
+  const degrees = safeProgress * 3.6;
+  const tone = getProgressTone(safeProgress);
+
+  return `
+    <div
+      class="progress-ring progress-${tone}"
+      style="--progress-deg: ${degrees}deg; --target-progress: ${safeProgress};"
+      aria-label="Progression ${safeProgress}%"
+    >
+      <div class="progress-ring-inner">
+        <span class="progress-ring-value" data-progress-value="${safeProgress}">0%</span>
+      </div>
+    </div>
+  `;
+}
+
 function renderPayrollView() {
   const data = remoteData[currentPayrollTab] || {};
   const progress = getProgress(data);
@@ -211,14 +283,14 @@ function renderPayrollView() {
               </p>
             ` : ""}
           </div>
-       ${renderCircularProgress(progress)}
+          ${renderCircularProgress(progress)}
         </div>
 
-       <div class="progress-summary">
-  <div class="progress-summary-text">
-    Progression actuelle estimée : <strong>${progress}%</strong>
-  </div>
-</div>
+        <div class="progress-summary">
+          <div class="progress-summary-text">
+            Progression actuelle estimée : <strong>${progress}%</strong>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -269,6 +341,22 @@ function renderRightsIntro() {
   `;
 }
 
+function renderBonusNoteOptions(includeEmptyLabel = "Pas de prime") {
+  const notes = calculatorSettings.bonusNotes || {};
+
+  const options = [
+    { label: includeEmptyLabel, value: 0 },
+    { label: `A+ (${Math.round((notes.A_PLUS ?? 1.5) * 100)}%)`, value: notes.A_PLUS ?? 1.5 },
+    { label: `A (${Math.round((notes.A ?? 1.2) * 100)}%)`, value: notes.A ?? 1.2 },
+    { label: `B+ (${Math.round((notes.B_PLUS ?? 1) * 100)}%)`, value: notes.B_PLUS ?? 1 },
+    { label: `B (${Math.round((notes.B ?? 0.75) * 100)}%)`, value: notes.B ?? 0.75 },
+    { label: `C (${Math.round((notes.C ?? 0.35) * 100)}%)`, value: notes.C ?? 0.35 },
+    { label: `B- (${Math.round((notes.B_MINUS ?? 0.15) * 100)}%)`, value: notes.B_MINUS ?? 0.15 }
+  ];
+
+  return options.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join("");
+}
+
 function renderRightsForm() {
   switch (currentRightsTab) {
     case "resign_notice":
@@ -296,13 +384,7 @@ function renderRightsForm() {
               <div class="form-group">
                 <label for="bonusNote">Note prime semestrielle</label>
                 <select id="bonusNote">
-                  <option value="0">Pas de prime</option>
-                  <option value="1.5">A+ (150%)</option>
-                  <option value="1.2">A (120%)</option>
-                  <option value="1">B+ (100%)</option>
-                  <option value="0.75">B (75%)</option>
-                  <option value="0.35">C (35%)</option>
-                  <option value="0.15">B- (15%)</option>
+                  ${renderBonusNoteOptions("Pas de prime")}
                 </select>
                 <small>Laissez sur “Pas de prime” si hors juin/décembre.</small>
               </div>
@@ -340,13 +422,7 @@ function renderRightsForm() {
               <div class="form-group">
                 <label for="bonusNote">Note de la dernière prime semestrielle</label>
                 <select id="bonusNote">
-                  <option value="0">Pas de prime / Non concerné</option>
-                  <option value="1.5">A+ (150%)</option>
-                  <option value="1.2">A (120%)</option>
-                  <option value="1">B+ (100%)</option>
-                  <option value="0.75">B (75%)</option>
-                  <option value="0.35">C (35%)</option>
-                  <option value="0.15">B- (15%)</option>
+                  ${renderBonusNoteOptions("Pas de prime / Non concerné")}
                 </select>
                 <small>Laissez sur “Pas de prime” si hors juin/décembre.</small>
               </div>
@@ -384,13 +460,7 @@ function renderRightsForm() {
               <div class="form-group">
                 <label for="bonusNote">Note de la dernière prime semestrielle</label>
                 <select id="bonusNote">
-                  <option value="0">Pas de prime / Non concerné</option>
-                  <option value="1.5">A+ (150%)</option>
-                  <option value="1.2">A (120%)</option>
-                  <option value="1">B+ (100%)</option>
-                  <option value="0.75">B (75%)</option>
-                  <option value="0.35">C (35%)</option>
-                  <option value="0.15">B- (15%)</option>
+                  ${renderBonusNoteOptions("Pas de prime / Non concerné")}
                 </select>
                 <small>Laissez sur “Pas de prime” si hors juin/décembre.</small>
               </div>
@@ -423,9 +493,9 @@ function renderRightsForm() {
               <div class="form-group">
                 <label for="bonusRate">Pourcentage majoration</label>
                 <select id="bonusRate">
-                  <option value="1">100%</option>
-                  <option value="1.5">150%</option>
-                  <option value="2">200%</option>
+                  ${(calculatorSettings.holidayRates || [1, 1.5, 2]).map(rate => `
+                    <option value="${rate}">${rate * 100}%</option>
+                  `).join("")}
                 </select>
               </div>
             </div>
@@ -477,24 +547,6 @@ function render() {
   `;
 
   bindEvents();
-}
-
-function renderCircularProgress(progress) {
-  const safeProgress = Math.max(0, Math.min(100, Number(progress) || 0));
-  const degrees = safeProgress * 3.6;
-  const tone = getProgressTone(safeProgress);
-
-  return `
-    <div
-      class="progress-ring progress-${tone}"
-      style="--progress-deg: ${degrees}deg; --target-progress: ${safeProgress};"
-      aria-label="Progression ${safeProgress}%"
-    >
-      <div class="progress-ring-inner">
-        <span class="progress-ring-value" data-progress-value="${safeProgress}">0%</span>
-      </div>
-    </div>
-  `;
 }
 
 function animateProgressRings() {
@@ -558,9 +610,15 @@ function bindEvents() {
 }
 
 function getNoticeMonths(seniority) {
-  let notice = 1;
-  if (seniority >= 10) notice = 2;
-  else if (seniority >= 5) notice = 1.5;
+  const rules = calculatorSettings.noticeRules || {};
+  let notice = Number(rules.default ?? 1);
+
+  if (seniority >= 10) {
+    notice = Number(rules.after10Years ?? 2);
+  } else if (seniority >= 5) {
+    notice = Number(rules.after5Years ?? 1.5);
+  }
+
   return notice;
 }
 
@@ -615,11 +673,15 @@ function calculateResignationWithNotice() {
 
   const notice = getNoticeMonths(seniority);
   const noticeSalary = salary * notice;
-  const dailySalary = salary / 26;
+
+  const workingDays = Number(calculatorSettings.workingDaysPerMonth || 26);
+  const netRate = Number(calculatorSettings.netRate || 0.87);
+
+  const dailySalary = salary / workingDays;
   const leaveCompensation = leaveDays * dailySalary;
   const halfYearBonus = bonusNote > 0 ? salary * bonusNote : 0;
   const grossTotal = noticeSalary + leaveCompensation + halfYearBonus;
-  const netTotal = grossTotal * 0.87;
+  const netTotal = grossTotal * netRate;
 
   setRightsResult(`
     <div class="result-lines">
@@ -627,7 +689,7 @@ function calculateResignationWithNotice() {
       <div class="result-line"><span>🏖️ Indemnité congés (${leaveDays} jours)</span><strong>${formatAr(leaveCompensation)}</strong></div>
       <div class="result-line"><span>🎁 Prime semestrielle</span><strong>${formatAr(halfYearBonus)}</strong></div>
       <div class="result-line total"><span>💵 Total brut estimé</span><strong>${formatAr(grossTotal)}</strong></div>
-      <div class="result-line total total-net"><span>💰 Total net estimé (87%)</span><strong>${formatAr(netTotal)}</strong></div>
+      <div class="result-line total total-net"><span>💰 Total net estimé (${Math.round(netRate * 100)}%)</span><strong>${formatAr(netTotal)}</strong></div>
     </div>
   `);
 }
@@ -641,14 +703,18 @@ function calculateResignationWithoutNotice() {
   }
 
   const notice = getNoticeMonths(seniority);
-  const dailySalary = salary / 26;
+
+  const workingDays = Number(calculatorSettings.workingDaysPerMonth || 26);
+  const netRate = Number(calculatorSettings.netRate || 0.87);
+
+  const dailySalary = salary / workingDays;
   const leaveCompensation = leaveDays * dailySalary;
   const halfYearBonus = bonusNote > 0 ? salary * bonusNote : 0;
 
   const noticeDebt = salary * notice;
   const companyOwesGross = leaveCompensation + halfYearBonus;
-  const companyOwesNet = companyOwesGross * 0.87;
-  const noticeDebtNet = noticeDebt * 0.87;
+  const companyOwesNet = companyOwesGross * netRate;
+  const noticeDebtNet = noticeDebt * netRate;
   const compensatedBalance = companyOwesNet - noticeDebtNet;
 
   setRightsResult(`
@@ -678,23 +744,32 @@ function calculateDismissalWithNotice() {
 
   const notice = getNoticeMonths(seniority);
   const noticeSalary = salary * notice;
-  const dailySalary = salary / 26;
+
+  const workingDays = Number(calculatorSettings.workingDaysPerMonth || 26);
+  const netRate = Number(calculatorSettings.netRate || 0.87);
+  const dismissalRules = calculatorSettings.dismissalRules || {};
+
+  const firstSegmentRate = Number(dismissalRules.firstSegmentRate ?? 0.25);
+  const secondSegmentRate = Number(dismissalRules.secondSegmentRate ?? 0.3333);
+  const firstSegmentLimit = Number(dismissalRules.firstSegmentLimit ?? 10);
+
+  const dailySalary = salary / workingDays;
   const leaveCompensation = leaveDays * dailySalary;
   const halfYearBonus = bonusNote > 0 ? salary * bonusNote : 0;
 
   let dismissalCompensation = 0;
   if (seniority >= 1) {
-    if (seniority <= 10) {
-      dismissalCompensation = (salary / 4) * seniority;
+    if (seniority <= firstSegmentLimit) {
+      dismissalCompensation = (salary * firstSegmentRate) * seniority;
     } else {
-      const firstPart = (salary / 4) * 10;
-      const secondPart = (salary / 3) * (seniority - 10);
+      const firstPart = (salary * firstSegmentRate) * firstSegmentLimit;
+      const secondPart = (salary * secondSegmentRate) * (seniority - firstSegmentLimit);
       dismissalCompensation = firstPart + secondPart;
     }
   }
 
   const grossTotal = noticeSalary + leaveCompensation + halfYearBonus + dismissalCompensation;
-  const netTotal = grossTotal * 0.87;
+  const netTotal = grossTotal * netRate;
 
   setRightsResult(`
     <div class="result-lines">
@@ -704,7 +779,7 @@ function calculateDismissalWithNotice() {
       <div class="result-line"><span>🎁 Prime semestrielle</span><strong>${formatAr(halfYearBonus)}</strong></div>
       <div class="result-line"><span>⚖️ Indemnité de licenciement</span><strong>${formatAr(dismissalCompensation)}</strong></div>
       <div class="result-line total"><span>💵 Total brut</span><strong>${formatAr(grossTotal)}</strong></div>
-      <div class="result-line total total-net"><span>💰 Total net estimé (87%)</span><strong>${formatAr(netTotal)}</strong></div>
+      <div class="result-line total total-net"><span>💰 Total net estimé (${Math.round(netRate * 100)}%)</span><strong>${formatAr(netTotal)}</strong></div>
       <div class="result-note">
         ⚠️ Vérifiez votre contrat ou convention collective pour confirmer les droits applicables.
       </div>
@@ -722,7 +797,8 @@ function calculateHolidayBonus() {
     return;
   }
 
-  const hourlyRate = salary / 173.33;
+  const monthlyHoursBase = Number(calculatorSettings.monthlyHoursBase || 173.33);
+  const hourlyRate = salary / monthlyHoursBase;
   const amount = Math.ceil((hourlyRate * hoursWorked * bonusRate) / 100) * 100;
 
   setRightsResult(`
@@ -736,8 +812,10 @@ function calculateHolidayBonus() {
 }
 
 function startApp() {
+  const renderSafe = () => render();
+
   if (typeof db === "undefined") {
-    render();
+    renderSafe();
     return;
   }
 
@@ -749,9 +827,18 @@ function startApp() {
     });
 
     remoteData = temp;
-    render();
+    renderSafe();
   }, () => {
-    render();
+    renderSafe();
+  });
+
+  db.collection("calculator_settings").doc("rules").onSnapshot(doc => {
+    if (doc.exists) {
+      mergeCalculatorSettings(doc.data() || {});
+    }
+    renderSafe();
+  }, () => {
+    renderSafe();
   });
 }
 
