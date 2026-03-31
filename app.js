@@ -119,23 +119,59 @@ function renderMainTabs() {
     </div>
   `;
 }
+function getProgressTone(progress) {
+  const value = Number(progress) || 0;
+
+  if (value >= 70) return "good";
+  if (value >= 30) return "medium";
+  return "low";
+}
+
+function getBestPayrollTab() {
+  const keys = Object.keys(payrollTabs);
+
+  if (!keys.length) return null;
+
+  let bestKey = keys[0];
+  let bestProgress = getProgress(remoteData[bestKey] || {});
+
+  keys.forEach((key) => {
+    const currentProgress = getProgress(remoteData[key] || {});
+    if (currentProgress > bestProgress) {
+      bestProgress = currentProgress;
+      bestKey = key;
+    }
+  });
+
+  return bestKey;
+}
 
 function renderPayrollTabs() {
+  const bestTab = getBestPayrollTab();
+
   return `
     <div class="tabs sub-tabs">
       ${Object.keys(payrollTabs).map(key => {
         const tabData = remoteData[key] || {};
         const tabProgress = getProgress(tabData);
+        const tone = getProgressTone(tabProgress);
+        const isBest = key === bestTab;
 
         return `
-          <button class="tab-button ${key === currentPayrollTab ? "active" : ""}" data-payroll-tab="${key}">
+          <button
+            class="tab-button ${key === currentPayrollTab ? "active" : ""} ${isBest ? "tab-best" : ""}"
+            data-payroll-tab="${key}"
+          >
             <span class="tab-label-wrap">
               <span>${payrollTabs[key]}</span>
               ${key === "advance_15n"
                 ? `<span class="tab-badge ${isAdvanceOpen() ? "tab-open" : "tab-closed"}">${isAdvanceOpen() ? "Ouvert" : "Fermé"}</span>`
                 : ""}
             </span>
-            <span class="tab-progress-chip">${tabProgress}%</span>
+
+            <span class="tab-progress-chip progress-${tone}">
+              ${tabProgress}%
+            </span>
           </button>
         `;
       }).join("")}
@@ -433,7 +469,7 @@ function render() {
 
   app.innerHTML = `
     <div class="app-shell">
-      <h1>💰 Suivi des Paies</h1>
+      <h1>${currentSection === "payroll" ? "💰 Suivi des Paies" : "📊 Calculer son droit"}</h1>
       ${renderMainTabs()}
       ${currentSection === "payroll" ? renderPayrollView() : renderRightsView()}
       <div class="app-footer">© RoberiX 2026 — Plateforme RH unifiée</div>
@@ -446,14 +482,44 @@ function render() {
 function renderCircularProgress(progress) {
   const safeProgress = Math.max(0, Math.min(100, Number(progress) || 0));
   const degrees = safeProgress * 3.6;
+  const tone = getProgressTone(safeProgress);
 
   return `
-    <div class="progress-ring" style="--progress-deg: ${degrees}deg;" aria-label="Progression ${safeProgress}%">
+    <div
+      class="progress-ring progress-${tone}"
+      style="--progress-deg: ${degrees}deg; --target-progress: ${safeProgress};"
+      aria-label="Progression ${safeProgress}%"
+    >
       <div class="progress-ring-inner">
-        <span class="progress-ring-value">${safeProgress}%</span>
+        <span class="progress-ring-value" data-progress-value="${safeProgress}">0%</span>
       </div>
     </div>
   `;
+}
+
+function animateProgressRings() {
+  const values = document.querySelectorAll("[data-progress-value]");
+
+  values.forEach((el) => {
+    const target = Number(el.getAttribute("data-progress-value")) || 0;
+    let current = 0;
+    const duration = 900;
+    const stepTime = 16;
+    const increment = Math.max(1, Math.ceil(target / (duration / stepTime)));
+
+    el.textContent = "0%";
+
+    const timer = setInterval(() => {
+      current += increment;
+
+      if (current >= target) {
+        current = target;
+        clearInterval(timer);
+      }
+
+      el.textContent = `${current}%`;
+    }, stepTime);
+  });
 }
 
 function bindEvents() {
@@ -487,6 +553,8 @@ function bindEvents() {
       performCalculation(action);
     };
   });
+
+  animateProgressRings();
 }
 
 function getNoticeMonths(seniority) {
