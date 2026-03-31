@@ -1,275 +1,824 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin - Suivi Paies</title>
-</head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Plateforme RH</title>
+
   <style>
-  :root {
-    --bg-1: #061122;
-    --bg-2: #0b1730;
-    --panel: rgba(12, 22, 42, 0.82);
-    --line: rgba(255, 255, 255, 0.1);
-    --text: #ecf3ff;
-    --muted: #9fb0cc;
-    --cyan: #53d8ff;
-    --green: #36d399;
-    --radius: 22px;
-    --shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
-  }
-
-  * {
-    box-sizing: border-box;
-  }
-
-  body {
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    color: var(--text);
-    background:
-      radial-gradient(circle at top left, rgba(55, 130, 246, 0.22), transparent 28%),
-      radial-gradient(circle at top right, rgba(139, 92, 246, 0.16), transparent 24%),
-      linear-gradient(180deg, var(--bg-1), #030813 48%, var(--bg-2));
-    min-height: 100vh;
-    padding: 24px;
-  }
-
-  .admin-shell {
-    width: min(680px, calc(100% - 24px));
-    margin: 20px auto;
-  }
-
-  .admin-card {
-    border: 1px solid var(--line);
-    background: var(--panel);
-    border-radius: 30px;
-    box-shadow: var(--shadow);
-    overflow: hidden;
-  }
-
-  .admin-top {
-    padding: 24px;
-    border-bottom: 1px solid var(--line);
-    background: linear-gradient(90deg, rgba(83, 216, 255, 0.14), rgba(126, 231, 255, 0.05), rgba(168, 85, 247, 0.08));
-  }
-
-  .admin-top h1 {
-    margin: 0 0 6px;
-    font-size: 30px;
-  }
-
-  .admin-top p {
-    margin: 0;
-    color: var(--muted);
-  }
-
-  .admin-body {
-    padding: 24px;
-  }
-
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 18px;
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .field.full {
-    grid-column: 1 / -1;
-  }
-
-  label {
-    font-size: 14px;
-    color: var(--muted);
-    font-weight: bold;
-  }
-
-input,
-select {
-  width: 100%;
-  border: 1px solid var(--line);
-  background: rgba(255,255,255,0.06);
-  color: var(--text);
-  border-radius: 14px;
-  padding: 14px 16px;
-  outline: none;
-  appearance: none;
-}
-
-select option {
-  background: #0b1730;
-  color: #ecf3ff;
-}
-
-  input::placeholder {
-    color: #8ea0bc;
-  }
-
-  .admin-actions {
-    margin-top: 22px;
-    display: flex;
-    justify-content: flex-end;
-  }
-
-  .admin-btn {
-    border: none;
-    border-radius: 16px;
-    padding: 14px 20px;
-    cursor: pointer;
-    background: var(--cyan);
-    color: #04111d;
-    font-weight: bold;
-  }
-
-  .admin-help {
-    margin-top: 16px;
-    color: var(--muted);
-    font-size: 14px;
-    line-height: 1.6;
-  }
-
-  @media (max-width: 700px) {
-    .form-grid {
-      grid-template-columns: 1fr;
+    :root {
+      --bg-1: #030712;
+      --bg-2: #071224;
+      --bg-3: #0a1930;
+      --panel: rgba(10, 19, 38, 0.82);
+      --panel-strong: rgba(8, 16, 30, 0.92);
+      --panel-soft: rgba(255, 255, 255, 0.05);
+      --line: rgba(255, 255, 255, 0.1);
+      --line-strong: rgba(255, 255, 255, 0.16);
+      --text: #edf4ff;
+      --muted: #95a8c8;
+      --cyan: #53d8ff;
+      --cyan-2: #7ee7ff;
+      --blue: #4f8cff;
+      --green: #36d399;
+      --orange: #ffb347;
+      --red: #ff7b72;
+      --shadow-xl: 0 30px 80px rgba(0, 0, 0, 0.42);
+      --shadow-lg: 0 18px 40px rgba(0, 0, 0, 0.28);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
     }
-  }
-</style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 10%, rgba(83, 216, 255, 0.18), transparent 22%),
+        radial-gradient(circle at 88% 12%, rgba(79, 140, 255, 0.14), transparent 24%),
+        radial-gradient(circle at 50% 100%, rgba(126, 231, 255, 0.08), transparent 30%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 40%, var(--bg-3) 100%);
+      background-attachment: fixed;
+      padding: 24px;
+    }
+
+    .admin-shell {
+      width: min(1180px, calc(100% - 24px));
+      margin: 0 auto;
+    }
+
+    .admin-hero {
+      margin-bottom: 20px;
+      border: 1px solid rgba(83, 216, 255, 0.16);
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(83, 216, 255, 0.14), transparent 28%),
+        radial-gradient(circle at 0% 100%, rgba(79, 140, 255, 0.1), transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow-xl);
+      overflow: hidden;
+    }
+
+    .admin-hero-inner {
+      padding: 26px;
+    }
+
+    .admin-hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(30px, 4vw, 44px);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      font-weight: 900;
+      color: #f7fbff;
+    }
+
+    .admin-hero p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .admin-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      padding: 14px;
+      margin-bottom: 22px;
+      border: 1px solid rgba(83, 216, 255, 0.14);
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(83, 216, 255, 0.08), rgba(255, 255, 255, 0.03));
+      backdrop-filter: blur(20px);
+      box-shadow:
+        0 22px 44px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .admin-tab-btn {
+      min-height: 68px;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 22px;
+      padding: 18px 22px;
+      cursor: pointer;
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    .admin-tab-btn:hover {
+      transform: translateY(-2px);
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(83, 216, 255, 0.14);
+    }
+
+    .admin-tab-btn.active {
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      color: #04111d;
+      border-color: transparent;
+      box-shadow:
+        0 16px 32px rgba(83, 216, 255, 0.28),
+        inset 0 1px 0 rgba(255,255,255,0.25);
+    }
+
+    .admin-panel {
+      display: none;
+    }
+
+    .admin-panel.active {
+      display: block;
+    }
+
+    .section-card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-xl);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .section-card-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+    }
+
+    .section-card-header h2,
+    .section-card-header h3 {
+      margin: 0 0 6px;
+      letter-spacing: -0.03em;
+    }
+
+    .section-card-header p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .section-card-body {
+      padding: 24px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      font-size: 14px;
+      color: #dbe8ff;
+      font-weight: 700;
+    }
+
+    .field small {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border-radius: 16px;
+      padding: 14px 16px;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    input::placeholder {
+      color: #8ea0bc;
+    }
+
+    select {
+      padding-right: 46px;
+      background-image:
+        linear-gradient(45deg, transparent 50%, #9edfff 50%),
+        linear-gradient(135deg, #9edfff 50%, transparent 50%);
+      background-position:
+        calc(100% - 20px) calc(50% - 3px),
+        calc(100% - 14px) calc(50% - 3px);
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+    }
+
+    select option {
+      background: #0b1730;
+      color: #ecf3ff;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: rgba(83, 216, 255, 0.45);
+      box-shadow: 0 0 0 4px rgba(83, 216, 255, 0.12);
+      background: rgba(255,255,255,0.07);
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 22px;
+      flex-wrap: wrap;
+    }
+
+    .admin-btn {
+      border: none;
+      border-radius: 18px;
+      padding: 14px 20px;
+      min-height: 52px;
+      cursor: pointer;
+      font-weight: 800;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    }
+
+    .admin-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .admin-btn.primary {
+      color: #04111d;
+      background: linear-gradient(135deg, var(--cyan), var(--cyan-2));
+      box-shadow: 0 14px 28px rgba(83, 216, 255, 0.22);
+    }
+
+    .admin-btn.success {
+      color: #04111d;
+      background: linear-gradient(135deg, var(--green), #7df3c7);
+      box-shadow: 0 14px 28px rgba(54, 211, 153, 0.22);
+    }
+
+    .status-box {
+      margin-top: 16px;
+      border-radius: 16px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: #dce9ff;
+      font-size: 14px;
+      line-height: 1.6;
+      display: none;
+    }
+
+    .status-box.show {
+      display: block;
+    }
+
+    .status-box.error {
+      background: rgba(255, 123, 114, 0.12);
+      border-color: rgba(255, 123, 114, 0.24);
+      color: #ffd2cd;
+    }
+
+    .status-box.success {
+      background: rgba(54, 211, 153, 0.12);
+      border-color: rgba(54, 211, 153, 0.24);
+      color: #bff7de;
+    }
+
+    .mini-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      background: rgba(83, 216, 255, 0.14);
+      border: 1px solid rgba(83, 216, 255, 0.24);
+      color: #bdefff;
+      margin-bottom: 10px;
+    }
+
+    .help-note {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 900px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 16px;
+      }
+
+      .admin-tabs {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-tab-btn {
+        width: 100%;
+      }
+
+      .section-card-body,
+      .section-card-header,
+      .admin-hero-inner {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
 <body>
+  <div class="admin-shell">
+    <div class="admin-hero">
+      <div class="admin-hero-inner">
+        <h1>🛠️ Admin Plateforme RH</h1>
+        <p>
+          Gère séparément le <strong>Suivi de paie</strong> et les paramètres de
+          <strong>Calculer son droit</strong>, sans mélanger les deux univers.
+        </p>
+      </div>
+    </div>
 
-  <h1>Admin - Mise à jour</h1>
+    <div class="admin-tabs">
+      <button class="admin-tab-btn active" data-admin-tab="payroll">
+        💳 Admin Suivi de paie
+      </button>
+      <button class="admin-tab-btn" data-admin-tab="rights">
+        ⚖️ Admin Calculer son droit
+      </button>
+    </div>
 
-  <label>Type :</label>
-  <select id="type">
-    <option value="monthly_pay">Paie mensuelle</option>
-    <option value="advance_15n">Avance 15N</option>
-    <option value="monthly_bonus">Prime mensuelle</option>
-  </select>
+    <!-- ADMIN SUIVI PAIE -->
+    <section class="admin-panel active" id="panel-payroll">
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="mini-badge">Suivi paie</div>
+          <h2>Mise à jour des statuts</h2>
+          <p>
+            Mets à jour les étapes, statuts bancaires et dates d’ouverture pour l’interface Suivi de paie.
+          </p>
+        </div>
 
-  <br><br>
+        <div class="section-card-body">
+          <div class="form-grid">
+            <div class="field full">
+              <label for="payrollType">Type</label>
+              <select id="payrollType">
+                <option value="monthly_pay">Paie mensuelle</option>
+                <option value="advance_15n">Avance 15N</option>
+                <option value="monthly_bonus">Prime mensuelle</option>
+              </select>
+            </div>
 
-  <label>Étape actuelle :</label>
-  <input type="text" id="currentStep">
+            <div class="field full">
+              <label for="currentStep">Étape actuelle</label>
+              <select id="currentStep">
+                <option value="">Ne pas modifier</option>
+                <option value="Préparation des fichiers">Préparation des fichiers</option>
+                <option value="Validation DAF">Validation DAF</option>
+                <option value="Constat">Constat</option>
+                <option value="Signature">Signature</option>
+                <option value="Banque / Virement">Banque / Virement</option>
+                <option value="Positionné">Positionné</option>
+                <option value="Terminé">Terminé</option>
+              </select>
+              <small>
+                Ici on passe en mode choix, pas en mode roman. Plus propre, plus rapide.
+              </small>
+            </div>
 
-  <br><br>
+            <div class="field full">
+              <label for="statusLabel">Statut global</label>
+              <select id="statusLabel">
+                <option value="">Ne pas modifier</option>
+                <option value="En attente">En attente</option>
+                <option value="En cours">En cours</option>
+                <option value="Traitement">Traitement</option>
+                <option value="Positionné">Positionné</option>
+                <option value="OK">OK</option>
+              </select>
+            </div>
 
-  <label>Statut :</label>
-  <input type="text" id="statusLabel">
-<div id="advanceDatesFields" style="display:none;">
-  <br><br>
+            <div class="field" id="openDateField" style="display:none;">
+              <label for="openDate">Ouvert le</label>
+              <input type="date" id="openDate" />
+            </div>
 
-  <label>Ouvert le :</label>
-  <input type="date" id="openDate">
+            <div class="field" id="closeDateField" style="display:none;">
+              <label for="closeDate">Fermé le</label>
+              <input type="date" id="closeDate" />
+            </div>
 
-  <br><br>
+            <div class="field">
+              <label for="bmoi">BMOI</label>
+              <select id="bmoi">
+                <option value="">Ne pas modifier</option>
+                <option value="En attente">En attente</option>
+                <option value="En cours">En cours</option>
+                <option value="Traitement">Traitement</option>
+                <option value="Positionné">Positionné</option>
+                <option value="OK">OK</option>
+              </select>
+            </div>
 
-  <label>Fermé le :</label>
-  <input type="date" id="closeDate">
-</div>
-  <br><br>
+            <div class="field">
+              <label for="mcb">MCB</label>
+              <select id="mcb">
+                <option value="">Ne pas modifier</option>
+                <option value="En attente">En attente</option>
+                <option value="En cours">En cours</option>
+                <option value="Traitement">Traitement</option>
+                <option value="Positionné">Positionné</option>
+                <option value="OK">OK</option>
+              </select>
+            </div>
 
-<label>BMOI :</label>
-<select id="bmoi">
-  <option value="">Ne pas modifier</option>
-  <option value="En attente">En attente</option>
-  <option value="En cours">En cours</option>
-  <option value="Traitement">Traitement</option>
-  <option value="Positionné">Positionné</option>
-  <option value="OK">OK</option>
-</select>
+            <div class="field">
+              <label for="bni_bred">BNI / BRED</label>
+              <select id="bni_bred">
+                <option value="">Ne pas modifier</option>
+                <option value="En attente">En attente</option>
+                <option value="En cours">En cours</option>
+                <option value="Traitement">Traitement</option>
+                <option value="Positionné">Positionné</option>
+                <option value="OK">OK</option>
+              </select>
+            </div>
 
-<br><br>
+            <div class="field">
+              <label for="boa_microcred_acces">BOA / Autres</label>
+              <select id="boa_microcred_acces">
+                <option value="">Ne pas modifier</option>
+                <option value="En attente">En attente</option>
+                <option value="En cours">En cours</option>
+                <option value="Traitement">Traitement</option>
+                <option value="Positionné">Positionné</option>
+                <option value="OK">OK</option>
+              </select>
+            </div>
+          </div>
 
-<label>MCB :</label>
-<select id="mcb">
-  <option value="">Ne pas modifier</option>
-  <option value="En attente">En attente</option>
-  <option value="En cours">En cours</option>
-  <option value="Traitement">Traitement</option>
-  <option value="Positionné">Positionné</option>
-  <option value="OK">OK</option>
-</select>
+          <div class="button-row">
+            <button class="admin-btn primary" id="savePayrollBtn">
+              Enregistrer Suivi paie
+            </button>
+          </div>
 
-<br><br>
+          <div class="status-box" id="payrollStatusBox"></div>
+        </div>
+      </div>
+    </section>
 
-<label>BNI / BRED :</label>
-<select id="bni_bred">
-  <option value="">Ne pas modifier</option>
-  <option value="En attente">En attente</option>
-  <option value="En cours">En cours</option>
-  <option value="Traitement">Traitement</option>
-  <option value="Positionné">Positionné</option>
-  <option value="OK">OK</option>
-</select>
+    <!-- ADMIN CALCULER SON DROIT -->
+    <section class="admin-panel" id="panel-rights">
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="mini-badge">Calcul RH</div>
+          <h2>Paramètres généraux des calculs</h2>
+          <p>
+            Ces valeurs alimentent les calculateurs STC et majoration. Les formules actuelles restent les valeurs par défaut.
+          </p>
+        </div>
 
-<br><br>
+        <div class="section-card-body">
+          <div class="form-grid">
+            <div class="field">
+              <label for="netRate">Taux net estimé</label>
+              <input type="number" id="netRate" step="0.01" value="0.87" />
+              <small>Valeur par défaut actuelle : 0.87</small>
+            </div>
 
-<label>BOA / Autres :</label>
-<select id="boa_microcred_acces">
-  <option value="">Ne pas modifier</option>
-  <option value="En attente">En attente</option>
-  <option value="En cours">En cours</option>
-  <option value="Traitement">Traitement</option>
-  <option value="Positionné">Positionné</option>
-  <option value="OK">OK</option>
-</select>
+            <div class="field">
+              <label for="workingDaysPerMonth">Jours ouvrables / mois</label>
+              <input type="number" id="workingDaysPerMonth" step="0.01" value="26" />
+            </div>
 
-  <button onclick="updateData()">Mettre à jour</button>
+            <div class="field">
+              <label for="monthlyHoursBase">Base horaire mensuelle</label>
+              <input type="number" id="monthlyHoursBase" step="0.01" value="173.33" />
+            </div>
+
+            <div class="field">
+              <label for="noticeDefault">Préavis par défaut</label>
+              <input type="number" id="noticeDefault" step="0.1" value="1" />
+            </div>
+
+            <div class="field">
+              <label for="noticeAfter5Years">Préavis à partir de 5 ans</label>
+              <input type="number" id="noticeAfter5Years" step="0.1" value="1.5" />
+            </div>
+
+            <div class="field">
+              <label for="noticeAfter10Years">Préavis à partir de 10 ans</label>
+              <input type="number" id="noticeAfter10Years" step="0.1" value="2" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-header">
+          <h3>Barème indemnité de licenciement</h3>
+          <p>Réglages utilisés pour le calcul du licenciement avec préavis.</p>
+        </div>
+
+        <div class="section-card-body">
+          <div class="form-grid">
+            <div class="field">
+              <label for="dismissalFirstSegmentRate">Taux jusqu’à 10 ans</label>
+              <input type="number" id="dismissalFirstSegmentRate" step="0.0001" value="0.25" />
+            </div>
+
+            <div class="field">
+              <label for="dismissalSecondSegmentRate">Taux au-delà de 10 ans</label>
+              <input type="number" id="dismissalSecondSegmentRate" step="0.0001" value="0.3333" />
+            </div>
+
+            <div class="field full">
+              <label for="dismissalSegmentLimit">Limite de tranche</label>
+              <input type="number" id="dismissalSegmentLimit" step="1" value="10" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-header">
+          <h3>Coefficients des primes</h3>
+          <p>Valeurs utilisées dans les calculateurs STC.</p>
+        </div>
+
+        <div class="section-card-body">
+          <div class="form-grid">
+            <div class="field">
+              <label for="bonusAPlus">A+</label>
+              <input type="number" id="bonusAPlus" step="0.01" value="1.5" />
+            </div>
+
+            <div class="field">
+              <label for="bonusA">A</label>
+              <input type="number" id="bonusA" step="0.01" value="1.2" />
+            </div>
+
+            <div class="field">
+              <label for="bonusBPlus">B+</label>
+              <input type="number" id="bonusBPlus" step="0.01" value="1" />
+            </div>
+
+            <div class="field">
+              <label for="bonusB">B</label>
+              <input type="number" id="bonusB" step="0.01" value="0.75" />
+            </div>
+
+            <div class="field">
+              <label for="bonusC">C</label>
+              <input type="number" id="bonusC" step="0.01" value="0.35" />
+            </div>
+
+            <div class="field">
+              <label for="bonusBMinus">B-</label>
+              <input type="number" id="bonusBMinus" step="0.01" value="0.15" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-header">
+          <h3>Majoration jour férié</h3>
+          <p>Options par défaut proposées dans le calculateur de majoration.</p>
+        </div>
+
+        <div class="section-card-body">
+          <div class="form-grid">
+            <div class="field">
+              <label for="holidayRate1">Option 1</label>
+              <input type="number" id="holidayRate1" step="0.1" value="1" />
+            </div>
+
+            <div class="field">
+              <label for="holidayRate2">Option 2</label>
+              <input type="number" id="holidayRate2" step="0.1" value="1.5" />
+            </div>
+
+            <div class="field full">
+              <label for="holidayRate3">Option 3</label>
+              <input type="number" id="holidayRate3" step="0.1" value="2" />
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button class="admin-btn success" id="saveRightsBtn">
+              Enregistrer Calculer son droit
+            </button>
+          </div>
+
+          <div class="status-box" id="rightsStatusBox"></div>
+
+          <div class="help-note">
+            Astuce : tant que tu ne modifies rien ici, tes calculateurs continuent d’utiliser les valeurs actuelles comme base par défaut.
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
   <script src="firebase.js"></script>
 
   <script>
-function updateData() {
-  const type = document.getElementById("type").value;
-
-  const update = {};
-
-const fields = [
-  "currentStep",
-  "statusLabel",
-  "openDate",
-  "closeDate",
-  "bmoi",
-  "mcb",
-  "bni_bred",
-  "boa_microcred_acces"
-];
-
-  fields.forEach(field => {
-    const value = document.getElementById(field).value.trim();
-    if (value !== "") {
-      update[field] = value;
+    function showStatus(boxId, message, isError = false) {
+      const box = document.getElementById(boxId);
+      box.className = "status-box show " + (isError ? "error" : "success");
+      box.textContent = message;
     }
-  });
 
-  update.updatedAt = new Date().toLocaleString();
+    function switchAdminTab(tab) {
+      document.querySelectorAll(".admin-tab-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.getAttribute("data-admin-tab") === tab);
+      });
 
-  db.collection("statuses").doc(type).update(update);
+      document.getElementById("panel-payroll").classList.toggle("active", tab === "payroll");
+      document.getElementById("panel-rights").classList.toggle("active", tab === "rights");
+    }
 
-  alert("Mis à jour !");
-}
+    function toggleAdvanceFields() {
+      const type = document.getElementById("payrollType").value;
+      const show = type === "advance_15n";
+      document.getElementById("openDateField").style.display = show ? "flex" : "none";
+      document.getElementById("closeDateField").style.display = show ? "flex" : "none";
+    }
+
+    async function updatePayrollData() {
+      try {
+        const type = document.getElementById("payrollType").value;
+
+        const update = {};
+        const fields = [
+          "currentStep",
+          "statusLabel",
+          "openDate",
+          "closeDate",
+          "bmoi",
+          "mcb",
+          "bni_bred",
+          "boa_microcred_acces"
+        ];
+
+        fields.forEach((field) => {
+          const el = document.getElementById(field);
+          if (!el) return;
+
+          const value = String(el.value || "").trim();
+          if (value !== "") {
+            update[field] = value;
+          }
+        });
+
+        update.updatedAt = new Date().toLocaleString();
+
+        await db.collection("statuses").doc(type).set(update, { merge: true });
+
+        showStatus("payrollStatusBox", "Mise à jour Suivi de paie enregistrée avec succès.");
+      } catch (error) {
+        showStatus("payrollStatusBox", "Erreur lors de la mise à jour Suivi de paie : " + error.message, true);
+      }
+    }
+
+    async function updateRightsSettings() {
+      try {
+        const rules = {
+          netRate: parseFloat(document.getElementById("netRate").value),
+          workingDaysPerMonth: parseFloat(document.getElementById("workingDaysPerMonth").value),
+          monthlyHoursBase: parseFloat(document.getElementById("monthlyHoursBase").value),
+
+          noticeRules: {
+            default: parseFloat(document.getElementById("noticeDefault").value),
+            after5Years: parseFloat(document.getElementById("noticeAfter5Years").value),
+            after10Years: parseFloat(document.getElementById("noticeAfter10Years").value)
+          },
+
+          dismissalRules: {
+            firstSegmentRate: parseFloat(document.getElementById("dismissalFirstSegmentRate").value),
+            secondSegmentRate: parseFloat(document.getElementById("dismissalSecondSegmentRate").value),
+            firstSegmentLimit: parseFloat(document.getElementById("dismissalSegmentLimit").value)
+          },
+
+          bonusNotes: {
+            A_PLUS: parseFloat(document.getElementById("bonusAPlus").value),
+            A: parseFloat(document.getElementById("bonusA").value),
+            B_PLUS: parseFloat(document.getElementById("bonusBPlus").value),
+            B: parseFloat(document.getElementById("bonusB").value),
+            C: parseFloat(document.getElementById("bonusC").value),
+            B_MINUS: parseFloat(document.getElementById("bonusBMinus").value)
+          },
+
+          holidayRates: [
+            parseFloat(document.getElementById("holidayRate1").value),
+            parseFloat(document.getElementById("holidayRate2").value),
+            parseFloat(document.getElementById("holidayRate3").value)
+          ],
+
+          updatedAt: new Date().toLocaleString()
+        };
+
+        await db.collection("calculator_settings").doc("rules").set(rules, { merge: true });
+
+        showStatus("rightsStatusBox", "Paramètres Calculer son droit enregistrés avec succès.");
+      } catch (error) {
+        showStatus("rightsStatusBox", "Erreur lors de l’enregistrement des paramètres RH : " + error.message, true);
+      }
+    }
+
+    async function loadRightsSettings() {
+      try {
+        const doc = await db.collection("calculator_settings").doc("rules").get();
+        if (!doc.exists) return;
+
+        const data = doc.data() || {};
+
+        if (typeof data.netRate === "number") document.getElementById("netRate").value = data.netRate;
+        if (typeof data.workingDaysPerMonth === "number") document.getElementById("workingDaysPerMonth").value = data.workingDaysPerMonth;
+        if (typeof data.monthlyHoursBase === "number") document.getElementById("monthlyHoursBase").value = data.monthlyHoursBase;
+
+        if (data.noticeRules) {
+          if (typeof data.noticeRules.default === "number") document.getElementById("noticeDefault").value = data.noticeRules.default;
+          if (typeof data.noticeRules.after5Years === "number") document.getElementById("noticeAfter5Years").value = data.noticeRules.after5Years;
+          if (typeof data.noticeRules.after10Years === "number") document.getElementById("noticeAfter10Years").value = data.noticeRules.after10Years;
+        }
+
+        if (data.dismissalRules) {
+          if (typeof data.dismissalRules.firstSegmentRate === "number") document.getElementById("dismissalFirstSegmentRate").value = data.dismissalRules.firstSegmentRate;
+          if (typeof data.dismissalRules.secondSegmentRate === "number") document.getElementById("dismissalSecondSegmentRate").value = data.dismissalRules.secondSegmentRate;
+          if (typeof data.dismissalRules.firstSegmentLimit === "number") document.getElementById("dismissalSegmentLimit").value = data.dismissalRules.firstSegmentLimit;
+        }
+
+        if (data.bonusNotes) {
+          if (typeof data.bonusNotes.A_PLUS === "number") document.getElementById("bonusAPlus").value = data.bonusNotes.A_PLUS;
+          if (typeof data.bonusNotes.A === "number") document.getElementById("bonusA").value = data.bonusNotes.A;
+          if (typeof data.bonusNotes.B_PLUS === "number") document.getElementById("bonusBPlus").value = data.bonusNotes.B_PLUS;
+          if (typeof data.bonusNotes.B === "number") document.getElementById("bonusB").value = data.bonusNotes.B;
+          if (typeof data.bonusNotes.C === "number") document.getElementById("bonusC").value = data.bonusNotes.C;
+          if (typeof data.bonusNotes.B_MINUS === "number") document.getElementById("bonusBMinus").value = data.bonusNotes.B_MINUS;
+        }
+
+        if (Array.isArray(data.holidayRates)) {
+          if (typeof data.holidayRates[0] === "number") document.getElementById("holidayRate1").value = data.holidayRates[0];
+          if (typeof data.holidayRates[1] === "number") document.getElementById("holidayRate2").value = data.holidayRates[1];
+          if (typeof data.holidayRates[2] === "number") document.getElementById("holidayRate3").value = data.holidayRates[2];
+        }
+      } catch (error) {
+        showStatus("rightsStatusBox", "Impossible de charger les paramètres RH : " + error.message, true);
+      }
+    }
+
+    document.querySelectorAll("[data-admin-tab]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        switchAdminTab(btn.getAttribute("data-admin-tab"));
+      });
+    });
+
+    document.getElementById("payrollType").addEventListener("change", toggleAdvanceFields);
+    document.getElementById("savePayrollBtn").addEventListener("click", updatePayrollData);
+    document.getElementById("saveRightsBtn").addEventListener("click", updateRightsSettings);
+
+    toggleAdvanceFields();
+    loadRightsSettings();
   </script>
-<script>
-  function toggleAdvanceFields() {
-    const type = document.getElementById("type").value;
-    const block = document.getElementById("advanceDatesFields");
-
-    if (type === "advance_15n") {
-      block.style.display = "block";
-    } else {
-      block.style.display = "none";
-    }
-  }
-
-  document.getElementById("type").addEventListener("change", toggleAdvanceFields);
-  toggleAdvanceFields();
-</script>
 </body>
 </html>
