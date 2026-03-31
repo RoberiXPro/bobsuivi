@@ -80,6 +80,7 @@ h1 {
   box-shadow: var(--shadow-lg);
 }
 
+/* GRANDS ONGLETS PRINCIPAUX */
 .main-tabs {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -124,6 +125,7 @@ h1 {
     inset 0 1px 0 rgba(255,255,255,0.25);
 }
 
+/* SOUS-ONGLETS */
 .sub-tabs {
   margin-bottom: 22px;
   padding: 8px;
@@ -188,6 +190,80 @@ h1 {
   background: rgba(255, 123, 114, 0.18);
   border: 1px solid rgba(255, 123, 114, 0.32);
   color: #ffc0bb;
+}
+
+/* PUCE % DANS LES ONGLETS */
+.tab-label-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tab-progress-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #dff6ff;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.tab-progress-chip.progress-low {
+  background: rgba(255, 123, 114, 0.16);
+  border-color: rgba(255, 123, 114, 0.26);
+  color: #ffd2cd;
+}
+
+.tab-progress-chip.progress-medium {
+  background: rgba(255, 179, 71, 0.16);
+  border-color: rgba(255, 179, 71, 0.26);
+  color: #ffdca8;
+}
+
+.tab-progress-chip.progress-good {
+  background: rgba(54, 211, 153, 0.16);
+  border-color: rgba(54, 211, 153, 0.26);
+  color: #b8f7dd;
+}
+
+.sub-tabs .tab-button.active .tab-progress-chip.progress-low,
+.sub-tabs .tab-button.active .tab-progress-chip.progress-medium,
+.sub-tabs .tab-button.active .tab-progress-chip.progress-good {
+  color: #04111d;
+  background: rgba(4, 17, 29, 0.12);
+  border-color: rgba(4, 17, 29, 0.08);
+}
+
+/* HIGHLIGHT ONGLET LE PLUS AVANCÉ */
+.tab-best {
+  position: relative;
+  border-color: rgba(83, 216, 255, 0.18);
+  box-shadow:
+    0 0 0 1px rgba(83, 216, 255, 0.08),
+    0 10px 24px rgba(83, 216, 255, 0.08);
+}
+
+.tab-best::after {
+  content: "Top";
+  position: absolute;
+  top: -8px;
+  right: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: #04111d;
+  background: linear-gradient(135deg, var(--cyan), var(--cyan-2));
+  box-shadow: 0 8px 18px rgba(83, 216, 255, 0.22);
 }
 
 .card {
@@ -277,7 +353,6 @@ h1 {
   display: inline-block;
 }
 
-.progress-badge,
 .rights-badge {
   min-width: 94px;
   text-align: center;
@@ -294,83 +369,108 @@ h1 {
     0 16px 36px rgba(83, 216, 255, 0.1);
 }
 
-.progress-bar {
-  width: 100%;
-  height: 28px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
-  overflow: hidden;
-  position: relative;
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow:
-    inset 0 2px 8px rgba(0,0,0,0.22),
-    inset 0 0 0 1px rgba(255,255,255,0.03);
-}
-
-.progress-bar::before {
-  content: "";
-  position: absolute;
-  inset: 4px;
-  border-radius: 999px;
+/* CERCLE DE PROGRESSION MODERNE */
+.progress-ring {
+  --size: 112px;
+  --thickness: 12px;
+  --ring-color: #22d3ee;
+  --ring-color-2: #67e8f9;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
   background:
-    linear-gradient(90deg,
-      rgba(255,255,255,0.03) 0%,
-      rgba(255,255,255,0.01) 12.5%,
-      transparent 12.5%,
-      transparent 25%,
-      rgba(255,255,255,0.03) 25%,
-      rgba(255,255,255,0.01) 37.5%,
-      transparent 37.5%,
-      transparent 50%,
-      rgba(255,255,255,0.03) 50%,
-      rgba(255,255,255,0.01) 62.5%,
-      transparent 62.5%,
-      transparent 75%,
-      rgba(255,255,255,0.03) 75%,
-      rgba(255,255,255,0.01) 87.5%,
-      transparent 87.5%,
-      transparent 100%);
-  pointer-events: none;
-}
-
-.progress-value {
-  height: 100%;
-  border-radius: 999px;
+    conic-gradient(
+      from -90deg,
+      var(--ring-color) 0deg,
+      var(--ring-color-2) var(--progress-deg),
+      rgba(255,255,255,0.08) var(--progress-deg),
+      rgba(255,255,255,0.08) 360deg
+    );
+  display: grid;
+  place-items: center;
   position: relative;
-  background: linear-gradient(90deg, #22d3ee 0%, #0ea5e9 45%, #67e8f9 100%);
   box-shadow:
-    0 0 24px rgba(34, 211, 238, 0.38),
-    inset 0 1px 0 rgba(255,255,255,0.25);
-  transition: width 0.45s cubic-bezier(.2,.8,.2,1);
+    0 18px 40px rgba(34, 211, 238, 0.16),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+  animation: ringPop 0.55s ease;
 }
 
-.progress-value::before {
+.progress-ring.progress-low {
+  --ring-color: #ff7b72;
+  --ring-color-2: #ffb0a8;
+  box-shadow:
+    0 18px 40px rgba(255, 123, 114, 0.16),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.progress-ring.progress-medium {
+  --ring-color: #ffb347;
+  --ring-color-2: #ffd18a;
+  box-shadow:
+    0 18px 40px rgba(255, 179, 71, 0.16),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.progress-ring.progress-good {
+  --ring-color: #36d399;
+  --ring-color-2: #8df0c8;
+  box-shadow:
+    0 18px 40px rgba(54, 211, 153, 0.16),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.progress-ring::before {
   content: "";
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(180deg, rgba(255,255,255,0.28), rgba(255,255,255,0));
-  opacity: 0.85;
+  inset: var(--thickness);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.08), transparent 60%),
+    linear-gradient(180deg, rgba(8, 16, 30, 0.96), rgba(10, 19, 38, 0.94));
+  border: 1px solid rgba(255,255,255,0.06);
 }
 
-.progress-value::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -140px;
-  width: 140px;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-  transform: skewX(-18deg);
-  animation: progressShine 2.4s linear infinite;
+.progress-ring-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  text-align: center;
 }
 
-@keyframes progressShine {
-  from {
-    left: -140px;
+.progress-ring-value {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #f4fbff;
+}
+
+.progress-summary {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.progress-summary-text {
+  color: #cfe0fb;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.progress-summary-text strong {
+  color: #ffffff;
+}
+
+@keyframes ringPop {
+  0% {
+    transform: scale(0.88);
+    opacity: 0.4;
   }
-  to {
-    left: calc(100% + 140px);
+  100% {
+    transform: scale(1);
+    opacity: 1;
   }
 }
 
@@ -473,6 +573,7 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: relative;
 }
 
 .form-group label {
@@ -509,6 +610,15 @@ h1 {
 .form-group select {
   background-color: rgba(255,255,255,0.05);
   color: var(--text);
+  padding-right: 46px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #9edfff 50%),
+    linear-gradient(135deg, #9edfff 50%, transparent 50%);
+  background-position:
+    calc(100% - 20px) calc(50% - 3px),
+    calc(100% - 14px) calc(50% - 3px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
 }
 
 .form-group select option {
@@ -524,23 +634,7 @@ h1 {
 }
 
 .form-group select:hover {
-  background: rgba(255,255,255,0.07);
-}
-
-.form-group {
-  position: relative;
-}
-
-.form-group select {
-  padding-right: 46px;
-  background-image:
-    linear-gradient(45deg, transparent 50%, #9edfff 50%),
-    linear-gradient(135deg, #9edfff 50%, transparent 50%);
-  background-position:
-    calc(100% - 20px) calc(50% - 3px),
-    calc(100% - 14px) calc(50% - 3px);
-  background-size: 6px 6px, 6px 6px;
-  background-repeat: no-repeat;
+  background-color: rgba(255,255,255,0.07);
 }
 
 .action-button {
@@ -673,17 +767,17 @@ h1 {
     align-items: stretch;
   }
 
-.rights-badge {
-  align-self: flex-start;
-  min-width: 82px;
-  font-size: 24px;
-}
+  .rights-badge {
+    align-self: flex-start;
+    min-width: 82px;
+    font-size: 24px;
+  }
 
-.progress-ring {
-  --size: 94px;
-  --thickness: 10px;
-  align-self: flex-start;
-}
+  .progress-ring {
+    --size: 94px;
+    --thickness: 10px;
+    align-self: flex-start;
+  }
 
   .bank-row {
     align-items: flex-start;
@@ -706,100 +800,6 @@ h1 {
   .result-line strong {
     text-align: left;
   }
-}
-
-.tab-label-wrap {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.tab-progress-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 52px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.08);
-  color: #dff6ff;
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
-}
-
-.sub-tabs .tab-button.active .tab-progress-chip {
-  background: rgba(4, 17, 29, 0.12);
-  border-color: rgba(4, 17, 29, 0.08);
-  color: #04111d;
-}
-.progress-ring {
-  --size: 112px;
-  --thickness: 12px;
-  width: var(--size);
-  height: var(--size);
-  border-radius: 50%;
-  background:
-    conic-gradient(
-      from -90deg,
-      #22d3ee 0deg,
-      #0ea5e9 var(--progress-deg),
-      rgba(255,255,255,0.08) var(--progress-deg),
-      rgba(255,255,255,0.08) 360deg
-    );
-  display: grid;
-  place-items: center;
-  position: relative;
-  box-shadow:
-    0 18px 40px rgba(34, 211, 238, 0.16),
-    inset 0 1px 0 rgba(255,255,255,0.08);
-}
-
-.progress-ring::before {
-  content: "";
-  position: absolute;
-  inset: var(--thickness);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.08), transparent 60%),
-    linear-gradient(180deg, rgba(8, 16, 30, 0.96), rgba(10, 19, 38, 0.94));
-  border: 1px solid rgba(255,255,255,0.06);
-}
-
-.progress-ring-inner {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  place-items: center;
-  text-align: center;
-}
-
-.progress-ring-value {
-  font-size: 24px;
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  color: #f4fbff;
-}
-
-.progress-summary {
-  margin-top: 18px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.06);
-}
-
-.progress-summary-text {
-  color: #cfe0fb;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.progress-summary-text strong {
-  color: #ffffff;
 }
 
 @media (max-width: 560px) {
@@ -828,10 +828,6 @@ h1 {
 
   .hero-head h2 {
     font-size: 26px;
-  }
-
-  .progress-bar {
-    height: 24px;
   }
 
   .bank-left {
