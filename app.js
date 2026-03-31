@@ -123,14 +123,22 @@ function renderMainTabs() {
 function renderPayrollTabs() {
   return `
     <div class="tabs sub-tabs">
-      ${Object.keys(payrollTabs).map(key => `
-        <button class="tab-button ${key === currentPayrollTab ? "active" : ""}" data-payroll-tab="${key}">
-          ${payrollTabs[key]}
-          ${key === "advance_15n"
-            ? `<span class="tab-badge ${isAdvanceOpen() ? "tab-open" : "tab-closed"}">${isAdvanceOpen() ? "Ouvert" : "Fermé"}</span>`
-            : ""}
-        </button>
-      `).join("")}
+      ${Object.keys(payrollTabs).map(key => {
+        const tabData = remoteData[key] || {};
+        const tabProgress = getProgress(tabData);
+
+        return `
+          <button class="tab-button ${key === currentPayrollTab ? "active" : ""}" data-payroll-tab="${key}">
+            <span class="tab-label-wrap">
+              <span>${payrollTabs[key]}</span>
+              ${key === "advance_15n"
+                ? `<span class="tab-badge ${isAdvanceOpen() ? "tab-open" : "tab-closed"}">${isAdvanceOpen() ? "Ouvert" : "Fermé"}</span>`
+                : ""}
+            </span>
+            <span class="tab-progress-chip">${tabProgress}%</span>
+          </button>
+        `;
+      }).join("")}
     </div>
   `;
 }
@@ -167,12 +175,14 @@ function renderPayrollView() {
               </p>
             ` : ""}
           </div>
-          <div class="progress-badge">${progress}%</div>
+       ${renderCircularProgress(progress)}
         </div>
 
-        <div class="progress-bar">
-          <div class="progress-value" style="width:${progress}%"></div>
-        </div>
+       <div class="progress-summary">
+  <div class="progress-summary-text">
+    Progression actuelle estimée : <strong>${progress}%</strong>
+  </div>
+</div>
       </div>
     </div>
 
@@ -431,6 +441,19 @@ function render() {
   `;
 
   bindEvents();
+}
+
+function renderCircularProgress(progress) {
+  const safeProgress = Math.max(0, Math.min(100, Number(progress) || 0));
+  const degrees = safeProgress * 3.6;
+
+  return `
+    <div class="progress-ring" style="--progress-deg: ${degrees}deg;" aria-label="Progression ${safeProgress}%">
+      <div class="progress-ring-inner">
+        <span class="progress-ring-value">${safeProgress}%</span>
+      </div>
+    </div>
+  `;
 }
 
 function bindEvents() {
