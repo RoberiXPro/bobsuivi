@@ -386,30 +386,35 @@
       line-height: 1.7;
     }
 
-    .queue-list {
+    .queue-list,
+    .published-list {
       display: flex;
       flex-direction: column;
       gap: 16px;
     }
 
-    .queue-card {
+    .queue-card,
+    .published-card {
       border-radius: 20px;
       padding: 20px;
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.08);
     }
 
-    .queue-card.complaint {
+    .queue-card.complaint,
+    .published-card.complaint {
       border-color: rgba(255, 123, 114, 0.18);
       background: linear-gradient(180deg, rgba(255, 123, 114, 0.10), rgba(255,255,255,0.03));
     }
 
-    .queue-card.announcement {
+    .queue-card.announcement,
+    .published-card.announcement {
       border-color: rgba(83, 216, 255, 0.18);
       background: linear-gradient(180deg, rgba(83, 216, 255, 0.08), rgba(255,255,255,0.03));
     }
 
-    .queue-head {
+    .queue-head,
+    .published-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -418,7 +423,8 @@
       margin-bottom: 12px;
     }
 
-    .queue-badge {
+    .queue-badge,
+    .published-badge {
       display: inline-flex;
       align-items: center;
       padding: 6px 12px;
@@ -428,43 +434,50 @@
       letter-spacing: 0.01em;
     }
 
-    .queue-badge.info {
+    .queue-badge.info,
+    .published-badge.info {
       background: rgba(83, 216, 255, 0.18);
       border: 1px solid rgba(83, 216, 255, 0.28);
       color: #bfefff;
     }
 
-    .queue-badge.warning {
+    .queue-badge.warning,
+    .published-badge.warning {
       background: rgba(255, 209, 102, 0.16);
       border: 1px solid rgba(255, 209, 102, 0.24);
       color: #ffe6a6;
     }
 
-    .queue-date {
+    .queue-date,
+    .published-date {
       color: var(--muted);
       font-size: 13px;
     }
 
-    .queue-card h3 {
+    .queue-card h3,
+    .published-card h3 {
       margin: 0 0 10px;
       font-size: 22px;
       letter-spacing: -0.03em;
     }
 
-    .queue-card p {
+    .queue-card p,
+    .published-card p {
       margin: 0 0 14px;
       color: #dbe7fb;
       line-height: 1.7;
     }
 
-    .queue-meta {
+    .queue-meta,
+    .published-meta {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
       margin-bottom: 16px;
     }
 
-    .queue-meta-item {
+    .queue-meta-item,
+    .published-meta-item {
       padding: 12px 14px;
       border-radius: 16px;
       background: rgba(255,255,255,0.04);
@@ -474,17 +487,41 @@
       line-height: 1.5;
     }
 
-    .queue-meta-item strong {
+    .queue-meta-item strong,
+    .published-meta-item strong {
       display: block;
       color: #fff;
       font-size: 14px;
       margin-top: 3px;
     }
 
-    .queue-actions {
+    .queue-actions,
+    .published-actions {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
+    }
+
+    .edit-panel {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: none;
+    }
+
+    .edit-panel.show {
+      display: block;
+    }
+
+    .danger-zone {
+      border: 1px solid rgba(255, 123, 114, 0.18);
+      background: linear-gradient(180deg, rgba(255, 123, 114, 0.10), rgba(255,255,255,0.03));
+    }
+
+    .danger-zone .section-card-header {
+      border-bottom-color: rgba(255, 123, 114, 0.18);
     }
 
     .empty-state {
@@ -504,7 +541,8 @@
         grid-template-columns: 1fr;
       }
 
-      .queue-meta {
+      .queue-meta,
+      .published-meta {
         grid-template-columns: 1fr;
       }
     }
@@ -527,6 +565,7 @@
       }
 
       .queue-actions,
+      .published-actions,
       .button-row {
         flex-direction: column;
       }
@@ -544,7 +583,7 @@
         <h1>🛠️ Admin Plateforme RH</h1>
         <p>
           Gère séparément le <strong>Suivi de paie</strong>, les paramètres de
-          <strong>Calculer son droit</strong> et la validation des
+          <strong>Calculer son droit</strong> et la validation / gestion complète des
           <strong>publications Annonces & Infos</strong>.
         </p>
       </div>
@@ -827,8 +866,8 @@
           <div class="mini-badge warning">Validation</div>
           <h2>Publications à valider</h2>
           <p>
-            Les annonces et plaintes soumises par les employés arrivent ici avant publication.
-            Seules les publications validées seront visibles dans la page Annonces & Infos.
+            Les annonces et plaintes envoyées par les employés arrivent ici avant publication.
+            L’admin a ensuite tous les pouvoirs : valider, rejeter, modifier, supprimer, ou tout reset.
           </p>
         </div>
 
@@ -864,6 +903,40 @@
           <div class="status-box" id="publicationStatusBox"></div>
         </div>
       </div>
+
+      <div class="section-card">
+        <div class="section-card-header">
+          <h3>Publications déjà publiées</h3>
+          <p>L’admin peut modifier, supprimer, épingler ou marquer urgent après publication.</p>
+        </div>
+
+        <div class="section-card-body">
+          <div id="publishedList" class="published-list">
+            <div class="empty-state">Chargement des publications...</div>
+          </div>
+
+          <div class="status-box" id="publishedStatusBox"></div>
+        </div>
+      </div>
+
+      <div class="section-card danger-zone">
+        <div class="section-card-header">
+          <h3>Zone dangereuse</h3>
+          <p>
+            Ici, on manipule les boutons nucléaires. Utilise ça seulement si tu veux vraiment nettoyer.
+          </p>
+        </div>
+
+        <div class="section-card-body">
+          <div class="button-row">
+            <button class="admin-btn warning" id="clearQueueBtn">Vider la file d’attente</button>
+            <button class="admin-btn danger" id="clearPublishedBtn">Supprimer toutes les publications</button>
+            <button class="admin-btn danger" id="resetAllPublicationsBtn">Reset total publications</button>
+          </div>
+
+          <div class="status-box" id="dangerStatusBox"></div>
+        </div>
+      </div>
     </section>
   </div>
 
@@ -873,6 +946,7 @@
 
   <script>
     let publicationQueueData = [];
+    let publishedData = [];
 
     function showStatus(boxId, message, isError = false) {
       const box = document.getElementById(boxId);
@@ -1094,6 +1168,95 @@
       bindPublicationActions();
     }
 
+    function renderPublishedList() {
+      const container = document.getElementById("publishedList");
+
+      if (!publishedData.length) {
+        container.innerHTML = `<div class="empty-state">Aucune publication publiée pour le moment.</div>`;
+        return;
+      }
+
+      container.innerHTML = publishedData.map(item => {
+        const isComplaint = item.type === "complaint";
+        const editId = `edit-${item.id}`;
+
+        return `
+          <div class="published-card ${isComplaint ? "complaint" : "announcement"}">
+            <div class="published-head">
+              <span class="published-badge ${isComplaint ? "warning" : "info"}">
+                ${isComplaint ? "⚠ Plainte" : "📢 Annonce"}
+              </span>
+              <span class="published-date">${formatDate(item.createdAt)}</span>
+            </div>
+
+            <h3>${escapeHtml(item.title || "")}</h3>
+            <p>${escapeHtml(item.content || "").replace(/\n/g, "<br>")}</p>
+
+            <div class="published-meta">
+              <div class="published-meta-item">
+                Pseudo public
+                <strong>${escapeHtml(item.publicationPseudo || "-")}</strong>
+              </div>
+
+              <div class="published-meta-item">
+                Épinglé
+                <strong>${item.isPinned ? "Oui" : "Non"}</strong>
+              </div>
+
+              <div class="published-meta-item">
+                Urgent
+                <strong>${item.isUrgent ? "Oui" : "Non"}</strong>
+              </div>
+            </div>
+
+            <div class="published-actions">
+              <button class="admin-btn primary" data-toggle-edit="${item.id}">Modifier</button>
+              <button class="admin-btn warning" data-toggle-pin="${item.id}">
+                ${item.isPinned ? "Retirer l’épingle" : "Épingler"}
+              </button>
+              <button class="admin-btn warning" data-toggle-urgent="${item.id}">
+                ${item.isUrgent ? "Retirer urgent" : "Marquer urgent"}
+              </button>
+              <button class="admin-btn danger" data-delete-published="${item.id}">Supprimer</button>
+            </div>
+
+            <div class="edit-panel" id="${editId}">
+              <div class="form-grid">
+                <div class="field">
+                  <label>Type</label>
+                  <select id="edit-type-${item.id}">
+                    <option value="announcement" ${item.type === "announcement" ? "selected" : ""}>Annonce</option>
+                    <option value="complaint" ${item.type === "complaint" ? "selected" : ""}>Plainte</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label>Pseudo public</label>
+                  <input id="edit-pseudo-${item.id}" value="${escapeHtml(item.publicationPseudo || "")}">
+                </div>
+
+                <div class="field full">
+                  <label>Titre</label>
+                  <input id="edit-title-${item.id}" value="${escapeHtml(item.title || "")}">
+                </div>
+
+                <div class="field full">
+                  <label>Contenu</label>
+                  <textarea id="edit-content-${item.id}">${escapeHtml(item.content || "")}</textarea>
+                </div>
+              </div>
+
+              <div class="button-row">
+                <button class="admin-btn success" data-save-edit="${item.id}">Enregistrer les modifications</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      bindPublishedActions();
+    }
+
     function bindPublicationActions() {
       document.querySelectorAll("[data-approve-publication]").forEach(btn => {
         btn.addEventListener("click", () => approvePublication(btn.getAttribute("data-approve-publication")));
@@ -1102,6 +1265,34 @@
       document.querySelectorAll("[data-reject-publication]").forEach(btn => {
         btn.addEventListener("click", () => rejectPublication(btn.getAttribute("data-reject-publication")));
       });
+    }
+
+    function bindPublishedActions() {
+      document.querySelectorAll("[data-toggle-edit]").forEach(btn => {
+        btn.addEventListener("click", () => toggleEditPanel(btn.getAttribute("data-toggle-edit")));
+      });
+
+      document.querySelectorAll("[data-save-edit]").forEach(btn => {
+        btn.addEventListener("click", () => savePublishedEdit(btn.getAttribute("data-save-edit")));
+      });
+
+      document.querySelectorAll("[data-delete-published]").forEach(btn => {
+        btn.addEventListener("click", () => deletePublished(btn.getAttribute("data-delete-published")));
+      });
+
+      document.querySelectorAll("[data-toggle-pin]").forEach(btn => {
+        btn.addEventListener("click", () => togglePin(btn.getAttribute("data-toggle-pin")));
+      });
+
+      document.querySelectorAll("[data-toggle-urgent]").forEach(btn => {
+        btn.addEventListener("click", () => toggleUrgent(btn.getAttribute("data-toggle-urgent")));
+      });
+    }
+
+    function toggleEditPanel(id) {
+      const panel = document.getElementById(`edit-${id}`);
+      if (!panel) return;
+      panel.classList.toggle("show");
     }
 
     async function approvePublication(id) {
@@ -1154,6 +1345,111 @@
       }
     }
 
+    async function savePublishedEdit(id) {
+      try {
+        const payload = {
+          type: document.getElementById(`edit-type-${id}`).value,
+          publicationPseudo: document.getElementById(`edit-pseudo-${id}`).value.trim(),
+          title: document.getElementById(`edit-title-${id}`).value.trim(),
+          content: document.getElementById(`edit-content-${id}`).value.trim(),
+          updatedAt: new Date().toISOString()
+        };
+
+        await db.collection("announcements").doc(id).set(payload, { merge: true });
+
+        showStatus("publishedStatusBox", "Publication modifiée avec succès.");
+      } catch (error) {
+        showStatus("publishedStatusBox", "Erreur lors de la modification : " + error.message, true);
+      }
+    }
+
+    async function deletePublished(id) {
+      const ok = confirm("Supprimer définitivement cette publication ?");
+      if (!ok) return;
+
+      try {
+        await db.collection("announcements").doc(id).delete();
+        showStatus("publishedStatusBox", "Publication supprimée.");
+      } catch (error) {
+        showStatus("publishedStatusBox", "Erreur lors de la suppression : " + error.message, true);
+      }
+    }
+
+    async function togglePin(id) {
+      try {
+        const ref = db.collection("announcements").doc(id);
+        const doc = await ref.get();
+        if (!doc.exists) return;
+        const data = doc.data() || {};
+        await ref.set({ isPinned: !data.isPinned, updatedAt: new Date().toISOString() }, { merge: true });
+        showStatus("publishedStatusBox", "Statut épinglé mis à jour.");
+      } catch (error) {
+        showStatus("publishedStatusBox", "Erreur lors de la mise à jour de l’épingle : " + error.message, true);
+      }
+    }
+
+    async function toggleUrgent(id) {
+      try {
+        const ref = db.collection("announcements").doc(id);
+        const doc = await ref.get();
+        if (!doc.exists) return;
+        const data = doc.data() || {};
+        await ref.set({ isUrgent: !data.isUrgent, updatedAt: new Date().toISOString() }, { merge: true });
+        showStatus("publishedStatusBox", "Statut urgent mis à jour.");
+      } catch (error) {
+        showStatus("publishedStatusBox", "Erreur lors de la mise à jour urgent : " + error.message, true);
+      }
+    }
+
+    async function clearQueue() {
+      const ok = confirm("Vider toute la file d’attente ?");
+      if (!ok) return;
+
+      try {
+        const snapshot = await db.collection("submission_queue").get();
+        const deletions = [];
+        snapshot.forEach(doc => deletions.push(doc.ref.delete()));
+        await Promise.all(deletions);
+        showStatus("dangerStatusBox", "File d’attente vidée.");
+      } catch (error) {
+        showStatus("dangerStatusBox", "Erreur lors du vidage de la file : " + error.message, true);
+      }
+    }
+
+    async function clearPublished() {
+      const ok = confirm("Supprimer toutes les publications déjà publiées ?");
+      if (!ok) return;
+
+      try {
+        const snapshot = await db.collection("announcements").get();
+        const deletions = [];
+        snapshot.forEach(doc => deletions.push(doc.ref.delete()));
+        await Promise.all(deletions);
+        showStatus("dangerStatusBox", "Toutes les publications ont été supprimées.");
+      } catch (error) {
+        showStatus("dangerStatusBox", "Erreur lors de la suppression des publications : " + error.message, true);
+      }
+    }
+
+    async function resetAllPublications() {
+      const ok = confirm("Reset total ? Cela supprimera la file d’attente ET toutes les publications.");
+      if (!ok) return;
+
+      try {
+        const queueSnap = await db.collection("submission_queue").get();
+        const annSnap = await db.collection("announcements").get();
+
+        const deletions = [];
+        queueSnap.forEach(doc => deletions.push(doc.ref.delete()));
+        annSnap.forEach(doc => deletions.push(doc.ref.delete()));
+
+        await Promise.all(deletions);
+        showStatus("dangerStatusBox", "Reset total du module publications effectué.");
+      } catch (error) {
+        showStatus("dangerStatusBox", "Erreur lors du reset total : " + error.message, true);
+      }
+    }
+
     function watchSubmissionQueue() {
       db.collection("submission_queue").onSnapshot(snapshot => {
         publicationQueueData = snapshot.docs.map(doc => ({
@@ -1163,6 +1459,18 @@
         renderPublicationQueue();
       }, error => {
         showStatus("publicationStatusBox", "Impossible de charger la file de validation : " + error.message, true);
+      });
+    }
+
+    function watchPublishedAnnouncements() {
+      db.collection("announcements").onSnapshot(snapshot => {
+        publishedData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        renderPublishedList();
+      }, error => {
+        showStatus("publishedStatusBox", "Impossible de charger les publications : " + error.message, true);
       });
     }
 
@@ -1176,9 +1484,14 @@
     document.getElementById("savePayrollBtn").addEventListener("click", updatePayrollData);
     document.getElementById("saveRightsBtn").addEventListener("click", updateRightsSettings);
 
+    document.getElementById("clearQueueBtn").addEventListener("click", clearQueue);
+    document.getElementById("clearPublishedBtn").addEventListener("click", clearPublished);
+    document.getElementById("resetAllPublicationsBtn").addEventListener("click", resetAllPublications);
+
     toggleAdvanceFields();
     loadRightsSettings();
     watchSubmissionQueue();
+    watchPublishedAnnouncements();
   </script>
 </body>
 </html>
