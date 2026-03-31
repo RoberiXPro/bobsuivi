@@ -1,7 +1,12 @@
 let currentSection = localStorage.getItem("currentSection") || "payroll";
 let currentPayrollTab = localStorage.getItem("currentPayrollTab") || "monthly_pay";
 let currentRightsTab = localStorage.getItem("currentRightsTab") || "resign_notice";
+let currentAnnouncementView = localStorage.getItem("currentAnnouncementView") || "feed";
+let currentAnnouncementFilter = localStorage.getItem("currentAnnouncementFilter") || "all";
+
 let remoteData = {};
+let announcements = [];
+let submissionStatus = null;
 
 let calculatorSettings = {
   netRate: 0.87,
@@ -76,6 +81,26 @@ const banks = [
 function formatAr(value) {
   const safeValue = Number(value || 0);
   return `${safeValue.toLocaleString("fr-FR")} Ar`;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function formatDate(value) {
+  if (!value) return "-";
+
+  if (typeof value === "object" && typeof value.toDate === "function") {
+    return value.toDate().toLocaleDateString("fr-FR");
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+  return date.toLocaleDateString("fr-FR");
 }
 
 function mergeCalculatorSettings(remoteRules = {}) {
@@ -196,6 +221,9 @@ function renderMainTabs() {
       <button class="tab-button ${currentSection === "rights" ? "active" : ""}" data-section="rights">
         Calculer son droit
       </button>
+      <button class="tab-button ${currentSection === "announcements" ? "active" : ""}" data-section="announcements">
+        Annonces & Infos
+      </button>
     </div>
   `;
 }
@@ -241,6 +269,35 @@ function renderRightsTabs() {
           ${rightsTabs[key]}
         </button>
       `).join("")}
+    </div>
+  `;
+}
+
+function renderAnnouncementsTabs() {
+  return `
+    <div class="tabs sub-tabs">
+      <button class="tab-button ${currentAnnouncementView === "feed" ? "active" : ""}" data-announcement-view="feed">
+        Voir les publications
+      </button>
+      <button class="tab-button ${currentAnnouncementView === "submit" ? "active" : ""}" data-announcement-view="submit">
+        Soumettre
+      </button>
+    </div>
+  `;
+}
+
+function renderAnnouncementFilters() {
+  return `
+    <div class="tabs filter-tabs">
+      <button class="tab-button ${currentAnnouncementFilter === "all" ? "active" : ""}" data-announcement-filter="all">
+        Tout
+      </button>
+      <button class="tab-button ${currentAnnouncementFilter === "announcement" ? "active" : ""}" data-announcement-filter="announcement">
+        Annonces
+      </button>
+      <button class="tab-button ${currentAnnouncementFilter === "complaint" ? "active" : ""}" data-announcement-filter="complaint">
+        Plaintes validées
+      </button>
     </div>
   `;
 }
@@ -534,14 +591,250 @@ function renderRightsView() {
   `;
 }
 
+function getFeaturedAnnouncement() {
+  if (!announcements.length) return null;
+
+  const sorted = [...announcements].sort((a, b) => {
+    const aTime = typeof a.createdAt === "object" && typeof a.createdAt.toMillis === "function"
+      ? a.createdAt.toMillis()
+      : new Date(a.createdAt || 0).getTime();
+
+    const bTime = typeof b.createdAt === "object" && typeof b.createdAt.toMillis === "function"
+      ? b.createdAt.toMillis()
+      : new Date(b.createdAt || 0).getTime();
+
+    return bTime - aTime;
+  });
+
+  const highlightedComplaint = sorted.find(item => item.type === "complaint" && (item.isPinned || item.isUrgent));
+  if (highlightedComplaint) return highlightedComplaint;
+
+  const pinned = sorted.find(item => item.isPinned);
+  if (pinned) return pinned;
+
+  return sorted[0];
+}
+
+function getFilteredAnnouncements() {
+  if (currentAnnouncementFilter === "all") return announcements;
+  return announcements.filter(item => item.type === currentAnnouncementFilter);
+}
+
+function renderAnnouncementReactions(item) {
+  const reactions = item.reactions || {};
+  const isComplaint = item.type === "complaint";
+
+  if (isComplaint) {
+    return `
+      <div class="announcement-reactions">
+        <button class="reaction-button" data-reaction-type="support" data-announcement-id="${item.id}">
+          Je soutiens <span>${reactions.support || 0}</span>
+        </button>
+        <button class="reaction-button alt" data-reaction-type="no_support" data-announcement-id="${item.id}">
+          Je ne soutiens pas <span>${reactions.no_support || 0}</span>
+        </button>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="announcement-reactions">
+      <button class="reaction-button" data-reaction-type="like" data-announcement-id="${item.id}">
+        J’aime <span>${reactions.like || 0}</span>
+      </button>
+      <button class="reaction-button alt" data-reaction-type="dislike" data-announcement-id="${item.id}">
+        J’aime pas <span>${reactions.dislike || 0}</span>
+      </button>
+    </div>
+  `;
+}
+
+function renderAnnouncementCard(item) {
+  const isComplaint = item.type === "complaint";
+  const badge = isComplaint ? "⚠ Attention" : "📢 Info";
+  const extraClass = isComplaint ? "announcement-card complaint-card" : "announcement-card";
+
+  return `
+    <div class="${extraClass}">
+      <div class="announcement-card-head">
+        <span class="announcement-badge ${isComplaint ? "warning" : "info"}">${badge}</span>
+        <span class="announcement-date">${formatDate(item.createdAt)}</span>
+      </div>
+
+      <h3>${escapeHtml(item.title || "")}</h3>
+      <p>${escapeHtml(item.content || "").replace(/\n/g, "<br>")}</p>
+
+      <div class="announcement-meta">
+        Publié par : <strong>${escapeHtml(item.publicationPseudo || "Anonyme")}</strong>
+      </div>
+
+      ${renderAnnouncementReactions(item)}
+    </div>
+  `;
+}
+
+function renderAnnouncementsHero() {
+  const featured = getFeaturedAnnouncement();
+
+  if (!featured) {
+    return `
+      <div class="card hero-card">
+        <div class="card-inner">
+          <div class="hero-head">
+            <div>
+              <h2>Annonces & Infos</h2>
+              <p class="hero-step">Aucune publication validée pour le moment.</p>
+            </div>
+            <div class="rights-badge">INFO</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  const isComplaint = featured.type === "complaint";
+  const title = isComplaint ? "Plainte du jour" : "Annonce du jour";
+
+  return `
+    <div class="card hero-card ${isComplaint ? "hero-warning" : ""}">
+      <div class="card-inner">
+        <div class="hero-head">
+          <div>
+            <h2>${title}</h2>
+            <p class="hero-step">${escapeHtml(featured.title || "")}</p>
+            <p class="hero-step">Publié par : <strong>${escapeHtml(featured.publicationPseudo || "Anonyme")}</strong></p>
+          </div>
+          <div class="rights-badge">${isComplaint ? "⚠" : "INFO"}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderAnnouncementsFeed() {
+  const filtered = getFilteredAnnouncements();
+
+  return `
+    ${renderAnnouncementsTabs()}
+    ${renderAnnouncementsHero()}
+    ${renderAnnouncementFilters()}
+
+    <div class="card">
+      <div class="card-inner">
+        <h3>Publications validées</h3>
+        <div class="announcement-list">
+          ${filtered.length
+            ? filtered.map(renderAnnouncementCard).join("")
+            : `<div class="empty-state">Aucune publication trouvée pour ce filtre.</div>`
+          }
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderAnnouncementSubmitForm() {
+  return `
+    ${renderAnnouncementsTabs()}
+
+    <div class="card hero-card">
+      <div class="card-inner">
+        <div class="hero-head">
+          <div>
+            <h2>Soumettre une publication</h2>
+            <p class="hero-step">
+              Toute publication est vérifiée par l’administrateur avant diffusion.
+              Votre identité réelle ne sera pas affichée publiquement.
+              Seul votre pseudo pourra apparaître après validation.
+            </p>
+          </div>
+          <div class="rights-badge">FILE</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-inner">
+        <h3>Formulaire de soumission</h3>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="submissionType">Type de publication</label>
+            <select id="submissionType">
+              <option value="announcement">Annonce</option>
+              <option value="complaint">Plainte</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="employeeInitial">Initial</label>
+            <input id="employeeInitial" type="text" maxlength="10" placeholder="Ex : ROB">
+          </div>
+
+          <div class="form-group">
+            <label for="employeeMatricule">Numéro matricule</label>
+            <input id="employeeMatricule" type="text" maxlength="30" placeholder="Ex : 417 ou S0417">
+          </div>
+
+          <div class="form-group">
+            <label for="publicationPseudo">Pseudo de publication</label>
+            <input id="publicationPseudo" type="text" maxlength="40" placeholder="Ex : Tigre Rose">
+          </div>
+
+          <div class="form-group full">
+            <label for="submissionTitle">Titre</label>
+            <input id="submissionTitle" type="text" maxlength="120" placeholder="Titre de votre publication">
+          </div>
+
+          <div class="form-group full">
+            <label for="submissionContent">Message</label>
+            <textarea id="submissionContent" rows="6" placeholder="Votre message"></textarea>
+          </div>
+        </div>
+
+        <button class="action-button cyan" data-submit-publication="true">
+          Soumettre pour validation
+        </button>
+
+        ${submissionStatus ? `
+          <div class="submission-feedback">
+            ${escapeHtml(submissionStatus)}
+          </div>
+        ` : ""}
+      </div>
+    </div>
+  `;
+}
+
+function renderAnnouncementsView() {
+  return currentAnnouncementView === "feed"
+    ? renderAnnouncementsFeed()
+    : renderAnnouncementSubmitForm();
+}
+
 function render() {
   const app = document.getElementById("app");
 
   app.innerHTML = `
     <div class="app-shell">
-      <h1>${currentSection === "payroll" ? "💰 Suivi des Paies" : "📊 Calculer son droit"}</h1>
+      <h1>${
+        currentSection === "payroll"
+          ? "💰 Suivi des Paies"
+          : currentSection === "rights"
+            ? "📊 Calculer son droit"
+            : "📢 Annonces & Infos"
+      }</h1>
+
       ${renderMainTabs()}
-      ${currentSection === "payroll" ? renderPayrollView() : renderRightsView()}
+
+      ${
+        currentSection === "payroll"
+          ? renderPayrollView()
+          : currentSection === "rights"
+            ? renderRightsView()
+            : renderAnnouncementsView()
+      }
+
       <div class="app-footer">© RoberiX 2026 — Plateforme RH unifiée</div>
     </div>
   `;
@@ -599,10 +892,42 @@ function bindEvents() {
     };
   });
 
+  document.querySelectorAll("[data-announcement-view]").forEach(btn => {
+    btn.onclick = () => {
+      currentAnnouncementView = btn.getAttribute("data-announcement-view");
+      localStorage.setItem("currentAnnouncementView", currentAnnouncementView);
+      submissionStatus = null;
+      render();
+    };
+  });
+
+  document.querySelectorAll("[data-announcement-filter]").forEach(btn => {
+    btn.onclick = () => {
+      currentAnnouncementFilter = btn.getAttribute("data-announcement-filter");
+      localStorage.setItem("currentAnnouncementFilter", currentAnnouncementFilter);
+      render();
+    };
+  });
+
   document.querySelectorAll("[data-calc-action]").forEach(btn => {
     btn.onclick = () => {
       const action = btn.getAttribute("data-calc-action");
       performCalculation(action);
+    };
+  });
+
+  document.querySelectorAll("[data-reaction-type][data-announcement-id]").forEach(btn => {
+    btn.onclick = () => {
+      reactToAnnouncement(
+        btn.getAttribute("data-announcement-id"),
+        btn.getAttribute("data-reaction-type")
+      );
+    };
+  });
+
+  document.querySelectorAll("[data-submit-publication]").forEach(btn => {
+    btn.onclick = () => {
+      submitPublication();
     };
   });
 
@@ -811,6 +1136,69 @@ function calculateHolidayBonus() {
   `);
 }
 
+async function reactToAnnouncement(announcementId, reactionType) {
+  if (typeof db === "undefined") return;
+
+  try {
+    const ref = db.collection("announcements").doc(announcementId);
+
+    await db.runTransaction(async (transaction) => {
+      const doc = await transaction.get(ref);
+      if (!doc.exists) return;
+
+      const data = doc.data() || {};
+      const reactions = { ...(data.reactions || {}) };
+      reactions[reactionType] = Number(reactions[reactionType] || 0) + 1;
+
+      transaction.update(ref, { reactions });
+    });
+  } catch (error) {
+    console.error("Erreur réaction annonce :", error);
+  }
+}
+
+async function submitPublication() {
+  const type = String(document.getElementById("submissionType")?.value || "").trim();
+  const employeeInitial = String(document.getElementById("employeeInitial")?.value || "").trim();
+  const employeeMatricule = String(document.getElementById("employeeMatricule")?.value || "").trim();
+  const publicationPseudo = String(document.getElementById("publicationPseudo")?.value || "").trim();
+  const title = String(document.getElementById("submissionTitle")?.value || "").trim();
+  const content = String(document.getElementById("submissionContent")?.value || "").trim();
+
+  if (!type || !employeeInitial || !employeeMatricule || !publicationPseudo || !title || !content) {
+    submissionStatus = "Veuillez remplir tous les champs avant l’envoi.";
+    render();
+    return;
+  }
+
+  if (typeof db === "undefined") {
+    submissionStatus = "Configuration Firebase introuvable.";
+    render();
+    return;
+  }
+
+  try {
+    await db.collection("submission_queue").add({
+      type,
+      title,
+      content,
+      employeeInitial,
+      employeeMatricule,
+      publicationPseudo,
+      status: "pending",
+      createdAt: new Date().toISOString()
+    });
+
+    submissionStatus = "Votre publication a bien été soumise. Elle est en cours de vérification par l’administrateur. Votre identité réelle ne sera pas affichée publiquement.";
+
+    render();
+  } catch (error) {
+    submissionStatus = "Erreur lors de la soumission. Réessayez.";
+    render();
+    console.error("Erreur soumission publication :", error);
+  }
+}
+
 function startApp() {
   const renderSafe = () => render();
 
@@ -836,6 +1224,16 @@ function startApp() {
     if (doc.exists) {
       mergeCalculatorSettings(doc.data() || {});
     }
+    renderSafe();
+  }, () => {
+    renderSafe();
+  });
+
+  db.collection("announcements").onSnapshot(snapshot => {
+    announcements = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
     renderSafe();
   }, () => {
     renderSafe();
