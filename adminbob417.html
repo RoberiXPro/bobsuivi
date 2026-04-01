@@ -891,8 +891,11 @@
 
       <div class="section-card">
         <div class="section-card-header">
-          <h3>File d’attente de validation</h3>
-          <p>L’identité réelle reste visible uniquement ici. Côté public, seul le pseudo sera affiché.</p>
+<h3>File d’attente des plaintes à valider</h3>
+<p>
+  Seules les plaintes non validées arrivent ici.
+  Les annonces publiées instantanément apparaissent plus bas dans “Publications déjà publiées”.
+</p>
         </div>
 
         <div class="section-card-body">
@@ -1450,17 +1453,31 @@
       }
     }
 
-    function watchSubmissionQueue() {
-      db.collection("submission_queue").onSnapshot(snapshot => {
-        publicationQueueData = snapshot.docs.map(doc => ({
+function watchSubmissionQueue() {
+  db.collection("submission_queue")
+    .where("status", "==", "pending")
+    .where("type", "==", "complaint")
+    .onSnapshot(snapshot => {
+      publicationQueueData = snapshot.docs
+        .map(doc => ({
           id: doc.id,
           ...doc.data()
-        }));
-        renderPublicationQueue();
-      }, error => {
-        showStatus("publicationStatusBox", "Impossible de charger la file de validation : " + error.message, true);
-      });
-    }
+        }))
+        .sort((a, b) => {
+          const aTime = new Date(a.createdAt || 0).getTime();
+          const bTime = new Date(b.createdAt || 0).getTime();
+          return bTime - aTime;
+        });
+
+      renderPublicationQueue();
+    }, error => {
+      showStatus(
+        "publicationStatusBox",
+        "Impossible de charger la file de validation : " + error.message,
+        true
+      );
+    });
+}
 
     function watchPublishedAnnouncements() {
       db.collection("announcements").onSnapshot(snapshot => {
