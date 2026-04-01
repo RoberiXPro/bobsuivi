@@ -592,7 +592,11 @@
     <div class="admin-tabs">
       <button class="admin-tab-btn active" data-admin-tab="payroll">💳 Admin Suivi de paie</button>
       <button class="admin-tab-btn" data-admin-tab="rights">⚖️ Admin Calculer son droit</button>
-      <button class="admin-tab-btn" data-admin-tab="publications">📢 Admin Publications</button>
+<button class="admin-tab-btn admin-tab-publications" data-admin-tab="publications">
+  <span class="admin-tab-label">📢 Admin Publications</span>
+  <span class="admin-tab-notif notif-published" id="publishedNotif">0</span>
+  <span class="admin-tab-notif notif-pending" id="pendingNotif">0</span>
+</button>
     </div>
 
     <!-- ADMIN SUIVI PAIE -->
