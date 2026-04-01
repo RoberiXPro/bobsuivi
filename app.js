@@ -733,15 +733,17 @@ function renderAnnouncementComposer() {
                 </div>
               </div>
 
-              <button class="action-button cyan" data-submit-publication="true">
-                Envoyer pour validation
-              </button>
+<button class="action-button cyan" data-submit-publication="true">
+  ${selectedPublicationType === "announcement" ? "Publier maintenant" : "Envoyer pour validation"}
+</button>
 
-              <p class="hero-step">
-                Votre publication sera vérifiée par l’administrateur avant diffusion.
-                Votre identité réelle ne sera pas affichée publiquement.
-                Seul votre pseudo pourra apparaître après validation.
-              </p>
+<p class="hero-step">
+  ${
+    selectedPublicationType === "announcement"
+      ? "Votre annonce sera publiée immédiatement. Votre identité réelle ne sera pas affichée publiquement. Seul votre pseudo sera visible."
+      : "Votre plainte sera envoyée à l’administrateur pour validation. Votre identité réelle ne sera pas affichée publiquement."
+  }
+</p>
             `
             : ""
         }
@@ -766,7 +768,7 @@ function renderAnnouncementsHero() {
           <div class="hero-head">
             <div>
               <h2>Annonces & Infos</h2>
-              <p class="hero-step">Aucune publication validée pour le moment.</p>
+              <p class="hero-step">Aucune publication disponible pour le moment.</p>
             </div>
             <button class="action-button cyan hero-publish-button" data-toggle-composer="true">
               Publier
@@ -1243,23 +1245,46 @@ async function submitPublication() {
   }
 
   try {
-    await db.collection("submission_queue").add({
+    const basePayload = {
       type: selectedPublicationType,
       title,
       content,
       employeeInitial: announcementProfile.initial,
       employeeMatricule: announcementProfile.matricule,
       publicationPseudo: announcementProfile.pseudo,
-      status: "pending",
       createdAt: new Date().toISOString()
-    });
+    };
 
-    submissionStatus = "Votre publication a bien été soumise. Elle est en cours de vérification par l’administrateur. Votre identité réelle ne sera pas affichée publiquement.";
+    if (selectedPublicationType === "announcement") {
+      await db.collection("announcements").add({
+        ...basePayload,
+        visibility: "public",
+        isReported: false,
+        isPinned: false,
+        isUrgent: false,
+        approvedAt: new Date().toISOString(),
+        approvedBy: "self",
+        reactions: {
+          like: 0,
+          dislike: 0
+        }
+      });
+
+      submissionStatus = "Votre annonce a été publiée immédiatement.";
+    } else {
+      await db.collection("submission_queue").add({
+        ...basePayload,
+        status: "pending"
+      });
+
+      submissionStatus = "Votre plainte a bien été envoyée pour validation admin.";
+    }
+
     announcementComposerOpen = false;
     selectedPublicationType = "";
     render();
   } catch (error) {
-    submissionStatus = "Erreur lors de la soumission. Réessayez.";
+    submissionStatus = "Erreur lors de la publication. Réessayez.";
     render();
     console.error("Erreur soumission publication :", error);
   }
@@ -1295,15 +1320,18 @@ function startApp() {
     renderSafe();
   });
 
-  db.collection("announcements").onSnapshot(snapshot => {
-    announcements = snapshot.docs.map(doc => ({
+db.collection("announcements").onSnapshot(snapshot => {
+  announcements = snapshot.docs
+    .map(doc => ({
       id: doc.id,
       ...doc.data()
-    }));
-    renderSafe();
-  }, () => {
-    renderSafe();
-  });
+    }))
+    .filter(item => item.visibility !== "hidden" && item.isReported !== true);
+
+  renderSafe();
+}, () => {
+  renderSafe();
+});
 }
 
 startApp();
