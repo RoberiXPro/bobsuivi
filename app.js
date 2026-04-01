@@ -1,12 +1,14 @@
 let currentSection = localStorage.getItem("currentSection") || "payroll";
 let currentPayrollTab = localStorage.getItem("currentPayrollTab") || "monthly_pay";
 let currentRightsTab = localStorage.getItem("currentRightsTab") || "resign_notice";
-let currentAnnouncementView = localStorage.getItem("currentAnnouncementView") || "feed";
 let currentAnnouncementFilter = localStorage.getItem("currentAnnouncementFilter") || "all";
 
 let remoteData = {};
 let announcements = [];
 let submissionStatus = null;
+let announcementComposerOpen = false;
+let selectedPublicationType = "";
+let announcementProfile = JSON.parse(localStorage.getItem("announcementProfile") || "null");
 
 let calculatorSettings = {
   netRate: 0.87,
@@ -269,19 +271,6 @@ function renderRightsTabs() {
           ${rightsTabs[key]}
         </button>
       `).join("")}
-    </div>
-  `;
-}
-
-function renderAnnouncementsTabs() {
-  return `
-    <div class="tabs sub-tabs">
-      <button class="tab-button ${currentAnnouncementView === "feed" ? "active" : ""}" data-announcement-view="feed">
-        Voir les publications
-      </button>
-      <button class="tab-button ${currentAnnouncementView === "submit" ? "active" : ""}" data-announcement-view="submit">
-        Soumettre
-      </button>
     </div>
   `;
 }
@@ -673,6 +662,100 @@ function renderAnnouncementCard(item) {
   `;
 }
 
+function renderAnnouncementIdentityGate() {
+  return `
+    <div class="card">
+      <div class="card-inner">
+        <h3>Avant d’entrer dans Annonces & Infos</h3>
+        <p class="hero-step">
+          Renseignez vos informations une seule fois pour publier plus rapidement ensuite.
+          Votre identité réelle ne sera pas affichée publiquement.
+          Seul votre pseudo pourra apparaître après validation admin.
+        </p>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="identityInitial">Initial</label>
+            <input id="identityInitial" type="text" maxlength="10" placeholder="Ex : ROB">
+          </div>
+
+          <div class="form-group">
+            <label for="identityMatricule">Numéro matricule</label>
+            <input id="identityMatricule" type="text" maxlength="30" placeholder="Ex : 417 ou S0417">
+          </div>
+
+          <div class="form-group full">
+            <label for="identityPseudo">Pseudo public</label>
+            <input id="identityPseudo" type="text" maxlength="40" placeholder="Ex : Tigre Rose">
+          </div>
+        </div>
+
+        <button class="action-button cyan" data-save-announcement-profile="true">
+          Continuer
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderAnnouncementComposer() {
+  const typeSelected = selectedPublicationType === "announcement" || selectedPublicationType === "complaint";
+
+  return `
+    <div class="card composer-card">
+      <div class="card-inner">
+        <h3>Publier</h3>
+
+        <div class="publish-choice-grid">
+          <button class="publish-choice ${selectedPublicationType === "announcement" ? "active" : ""}" data-publication-type="announcement">
+            <span class="publish-choice-icon">📢</span>
+            <span class="publish-choice-title">Publier une annonce</span>
+          </button>
+
+          <button class="publish-choice complaint ${selectedPublicationType === "complaint" ? "active" : ""}" data-publication-type="complaint">
+            <span class="publish-choice-icon">⚠️</span>
+            <span class="publish-choice-title">Publier une plainte</span>
+          </button>
+        </div>
+
+        ${
+          typeSelected
+            ? `
+              <div class="form-grid composer-form">
+                <div class="form-group full">
+                  <label for="submissionTitle">Titre</label>
+                  <input id="submissionTitle" type="text" maxlength="120" placeholder="Titre de votre publication">
+                </div>
+
+                <div class="form-group full">
+                  <label for="submissionContent">${selectedPublicationType === "complaint" ? "Message de la plainte" : "Message de l’annonce"}</label>
+                  <textarea id="submissionContent" rows="6" placeholder="${selectedPublicationType === "complaint" ? "Expliquez clairement votre plainte" : "Rédigez votre annonce"}"></textarea>
+                </div>
+              </div>
+
+              <button class="action-button cyan" data-submit-publication="true">
+                Envoyer pour validation
+              </button>
+
+              <p class="hero-step">
+                Votre publication sera vérifiée par l’administrateur avant diffusion.
+                Votre identité réelle ne sera pas affichée publiquement.
+                Seul votre pseudo pourra apparaître après validation.
+              </p>
+            `
+            : ""
+        }
+
+        ${
+          submissionStatus
+            ? `<div class="submission-feedback">${escapeHtml(submissionStatus)}</div>`
+            : ""
+        }
+      </div>
+    </div>
+  `;
+}
+
 function renderAnnouncementsHero() {
   const featured = getFeaturedAnnouncement();
 
@@ -685,7 +768,9 @@ function renderAnnouncementsHero() {
               <h2>Annonces & Infos</h2>
               <p class="hero-step">Aucune publication validée pour le moment.</p>
             </div>
-            <div class="rights-badge">INFO</div>
+            <button class="action-button cyan hero-publish-button" data-toggle-composer="true">
+              Publier
+            </button>
           </div>
         </div>
       </div>
@@ -704,19 +789,27 @@ function renderAnnouncementsHero() {
             <p class="hero-step">${escapeHtml(featured.title || "")}</p>
             <p class="hero-step">Publié par : <strong>${escapeHtml(featured.publicationPseudo || "Anonyme")}</strong></p>
           </div>
-          <div class="rights-badge">${isComplaint ? "⚠" : "INFO"}</div>
+          <button class="action-button cyan hero-publish-button" data-toggle-composer="true">
+            Publier
+          </button>
         </div>
       </div>
     </div>
   `;
 }
 
-function renderAnnouncementsFeed() {
+function renderAnnouncementsView() {
+  if (!announcementProfile) {
+    return renderAnnouncementIdentityGate();
+  }
+
   const filtered = getFilteredAnnouncements();
 
   return `
-    ${renderAnnouncementsTabs()}
     ${renderAnnouncementsHero()}
+
+    ${announcementComposerOpen ? renderAnnouncementComposer() : ""}
+
     ${renderAnnouncementFilters()}
 
     <div class="card">
@@ -731,85 +824,6 @@ function renderAnnouncementsFeed() {
       </div>
     </div>
   `;
-}
-
-function renderAnnouncementSubmitForm() {
-  return `
-    ${renderAnnouncementsTabs()}
-
-    <div class="card hero-card">
-      <div class="card-inner">
-        <div class="hero-head">
-          <div>
-            <h2>Soumettre une publication</h2>
-            <p class="hero-step">
-              Toute publication est vérifiée par l’administrateur avant diffusion.
-              Votre identité réelle ne sera pas affichée publiquement.
-              Seul votre pseudo pourra apparaître après validation.
-            </p>
-          </div>
-          <div class="rights-badge">FILE</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-inner">
-        <h3>Formulaire de soumission</h3>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="submissionType">Type de publication</label>
-            <select id="submissionType">
-              <option value="announcement">Annonce</option>
-              <option value="complaint">Plainte</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="employeeInitial">Initial</label>
-            <input id="employeeInitial" type="text" maxlength="10" placeholder="Ex : ROB">
-          </div>
-
-          <div class="form-group">
-            <label for="employeeMatricule">Numéro matricule</label>
-            <input id="employeeMatricule" type="text" maxlength="30" placeholder="Ex : 417 ou S0417">
-          </div>
-
-          <div class="form-group">
-            <label for="publicationPseudo">Pseudo de publication</label>
-            <input id="publicationPseudo" type="text" maxlength="40" placeholder="Ex : Tigre Rose">
-          </div>
-
-          <div class="form-group full">
-            <label for="submissionTitle">Titre</label>
-            <input id="submissionTitle" type="text" maxlength="120" placeholder="Titre de votre publication">
-          </div>
-
-          <div class="form-group full">
-            <label for="submissionContent">Message</label>
-            <textarea id="submissionContent" rows="6" placeholder="Votre message"></textarea>
-          </div>
-        </div>
-
-        <button class="action-button cyan" data-submit-publication="true">
-          Soumettre pour validation
-        </button>
-
-        ${submissionStatus ? `
-          <div class="submission-feedback">
-            ${escapeHtml(submissionStatus)}
-          </div>
-        ` : ""}
-      </div>
-    </div>
-  `;
-}
-
-function renderAnnouncementsView() {
-  return currentAnnouncementView === "feed"
-    ? renderAnnouncementsFeed()
-    : renderAnnouncementSubmitForm();
 }
 
 function render() {
@@ -872,6 +886,13 @@ function bindEvents() {
     btn.onclick = () => {
       currentSection = btn.getAttribute("data-section");
       localStorage.setItem("currentSection", currentSection);
+
+      if (currentSection !== "announcements") {
+        announcementComposerOpen = false;
+        selectedPublicationType = "";
+        submissionStatus = null;
+      }
+
       render();
     };
   });
@@ -888,15 +909,6 @@ function bindEvents() {
     btn.onclick = () => {
       currentRightsTab = btn.getAttribute("data-rights-tab");
       localStorage.setItem("currentRightsTab", currentRightsTab);
-      render();
-    };
-  });
-
-  document.querySelectorAll("[data-announcement-view]").forEach(btn => {
-    btn.onclick = () => {
-      currentAnnouncementView = btn.getAttribute("data-announcement-view");
-      localStorage.setItem("currentAnnouncementView", currentAnnouncementView);
-      submissionStatus = null;
       render();
     };
   });
@@ -925,6 +937,31 @@ function bindEvents() {
     };
   });
 
+  document.querySelectorAll("[data-save-announcement-profile]").forEach(btn => {
+    btn.onclick = () => {
+      saveAnnouncementProfile();
+    };
+  });
+
+  document.querySelectorAll("[data-toggle-composer]").forEach(btn => {
+    btn.onclick = () => {
+      announcementComposerOpen = !announcementComposerOpen;
+      if (!announcementComposerOpen) {
+        selectedPublicationType = "";
+        submissionStatus = null;
+      }
+      render();
+    };
+  });
+
+  document.querySelectorAll("[data-publication-type]").forEach(btn => {
+    btn.onclick = () => {
+      selectedPublicationType = btn.getAttribute("data-publication-type");
+      submissionStatus = null;
+      render();
+    };
+  });
+
   document.querySelectorAll("[data-submit-publication]").forEach(btn => {
     btn.onclick = () => {
       submitPublication();
@@ -932,6 +969,26 @@ function bindEvents() {
   });
 
   animateProgressRings();
+}
+
+function saveAnnouncementProfile() {
+  const initial = String(document.getElementById("identityInitial")?.value || "").trim();
+  const matricule = String(document.getElementById("identityMatricule")?.value || "").trim();
+  const pseudo = String(document.getElementById("identityPseudo")?.value || "").trim();
+
+  if (!initial || !matricule || !pseudo) {
+    alert("Veuillez remplir Initial, Matricule et Pseudo public.");
+    return;
+  }
+
+  announcementProfile = {
+    initial,
+    matricule,
+    pseudo
+  };
+
+  localStorage.setItem("announcementProfile", JSON.stringify(announcementProfile));
+  render();
 }
 
 function getNoticeMonths(seniority) {
@@ -1158,15 +1215,23 @@ async function reactToAnnouncement(announcementId, reactionType) {
 }
 
 async function submitPublication() {
-  const type = String(document.getElementById("submissionType")?.value || "").trim();
-  const employeeInitial = String(document.getElementById("employeeInitial")?.value || "").trim();
-  const employeeMatricule = String(document.getElementById("employeeMatricule")?.value || "").trim();
-  const publicationPseudo = String(document.getElementById("publicationPseudo")?.value || "").trim();
+  if (!announcementProfile) {
+    submissionStatus = "Votre profil Annonces & Infos est introuvable.";
+    render();
+    return;
+  }
+
+  if (!selectedPublicationType) {
+    submissionStatus = "Choisissez d’abord Annonce ou Plainte.";
+    render();
+    return;
+  }
+
   const title = String(document.getElementById("submissionTitle")?.value || "").trim();
   const content = String(document.getElementById("submissionContent")?.value || "").trim();
 
-  if (!type || !employeeInitial || !employeeMatricule || !publicationPseudo || !title || !content) {
-    submissionStatus = "Veuillez remplir tous les champs avant l’envoi.";
+  if (!title || !content) {
+    submissionStatus = "Veuillez remplir le titre et le message.";
     render();
     return;
   }
@@ -1179,18 +1244,19 @@ async function submitPublication() {
 
   try {
     await db.collection("submission_queue").add({
-      type,
+      type: selectedPublicationType,
       title,
       content,
-      employeeInitial,
-      employeeMatricule,
-      publicationPseudo,
+      employeeInitial: announcementProfile.initial,
+      employeeMatricule: announcementProfile.matricule,
+      publicationPseudo: announcementProfile.pseudo,
       status: "pending",
       createdAt: new Date().toISOString()
     });
 
     submissionStatus = "Votre publication a bien été soumise. Elle est en cours de vérification par l’administrateur. Votre identité réelle ne sera pas affichée publiquement.";
-
+    announcementComposerOpen = false;
+    selectedPublicationType = "";
     render();
   } catch (error) {
     submissionStatus = "Erreur lors de la soumission. Réessayez.";
