@@ -8,25 +8,26 @@ let announcements = [];
 let submissionStatus = null;
 let announcementComposerOpen = false;
 let selectedPublicationType = "";
+let editingAnnouncementId = null;
 let announcementProfile = JSON.parse(localStorage.getItem("announcementProfile") || "null");
+let lastSeenAnnouncementCreatedAt = localStorage.getItem("lastSeenAnnouncementCreatedAt") || "";
+let lastSeenComplaintCreatedAt = localStorage.getItem("lastSeenComplaintCreatedAt") || "";
+let reactionRegistry = JSON.parse(localStorage.getItem("announcementReactionRegistry") || "{}");
 
 let calculatorSettings = {
   netRate: 0.87,
   workingDaysPerMonth: 26,
   monthlyHoursBase: 173.33,
-
   noticeRules: {
     default: 1,
     after5Years: 1.5,
     after10Years: 2
   },
-
   dismissalRules: {
     firstSegmentRate: 0.25,
     secondSegmentRate: 0.3333,
     firstSegmentLimit: 10
   },
-
   bonusNotes: {
     A_PLUS: 1.5,
     A: 1.2,
@@ -35,7 +36,6 @@ let calculatorSettings = {
     C: 0.35,
     B_MINUS: 0.15
   },
-
   holidayRates: [1, 1.5, 2]
 };
 
@@ -58,26 +58,10 @@ const advanceDates = {
 };
 
 const banks = [
-  {
-    key: "bmoi",
-    label: "BMOI",
-    logos: ["bmoi.png"]
-  },
-  {
-    key: "mcb",
-    label: "MCB",
-    logos: ["mcb.png"]
-  },
-  {
-    key: "bni_bred",
-    label: "BNI / BRED",
-    logos: ["bni.png", "bred.png"]
-  },
-  {
-    key: "boa_microcred_acces",
-    label: "BOA / Autres",
-    logos: ["boa.png", "acces.png"]
-  }
+  { key: "bmoi", label: "BMOI", logos: ["bmoi.png"] },
+  { key: "mcb", label: "MCB", logos: ["mcb.png"] },
+  { key: "bni_bred", label: "BNI / BRED", logos: ["bni.png", "bred.png"] },
+  { key: "boa_microcred_acces", label: "BOA / Autres", logos: ["boa.png", "acces.png"] }
 ];
 
 function formatAr(value) {
@@ -105,6 +89,19 @@ function formatDate(value) {
   return date.toLocaleDateString("fr-FR");
 }
 
+function toTimestamp(value) {
+  if (!value) return 0;
+  if (typeof value === "object" && typeof value.toMillis === "function") {
+    return value.toMillis();
+  }
+  const parsed = new Date(value).getTime();
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+function saveReactionRegistry() {
+  localStorage.setItem("announcementReactionRegistry", JSON.stringify(reactionRegistry));
+}
+
 function mergeCalculatorSettings(remoteRules = {}) {
   calculatorSettings = {
     ...calculatorSettings,
@@ -130,21 +127,11 @@ function mergeCalculatorSettings(remoteRules = {}) {
 function getStatusClass(value) {
   const v = String(value || "").toLowerCase();
 
-  if (
-    v === "ok" ||
-    v === "positionné" ||
-    v === "positionne" ||
-    v === "payé" ||
-    v === "paye"
-  ) {
+  if (v === "ok" || v === "positionné" || v === "positionne" || v === "payé" || v === "paye") {
     return "state-done";
   }
 
-  if (
-    v.includes("attente") ||
-    v.includes("cours") ||
-    v.includes("traitement")
-  ) {
+  if (v.includes("attente") || v.includes("cours") || v.includes("traitement")) {
     return "state-active";
   }
 
@@ -172,7 +159,6 @@ function getProgress(data) {
 
 function getProgressTone(progress) {
   const value = Number(progress) || 0;
-
   if (value >= 70) return "good";
   if (value >= 30) return "medium";
   return "low";
@@ -180,7 +166,6 @@ function getProgressTone(progress) {
 
 function getBestPayrollTab() {
   const keys = Object.keys(payrollTabs);
-
   if (!keys.length) return null;
 
   let bestKey = keys[0];
@@ -198,8 +183,7 @@ function getBestPayrollTab() {
 }
 
 function isAdvanceOpen() {
-  const data = remoteData["advance_15n"] || {};
-
+  const data = remoteData.advance_15n || {};
   const open = data.openDate || advanceDates.open;
   const close = data.closeDate || advanceDates.close;
 
@@ -214,17 +198,66 @@ function isAdvanceOpen() {
   return today >= openDate && today <= closeDate;
 }
 
+function getAnnouncementUnreadCounts() {
+  const announcementSeenTs = toTimestamp(lastSeenAnnouncementCreatedAt);
+  const complaintSeenTs = toTimestamp(lastSeenComplaintCreatedAt);
+
+  return announcements.reduce((acc, item) => {
+    const createdAtTs = toTimestamp(item.createdAt);
+
+    if (item.type === "announcement" && createdAtTs > announcementSeenTs) {
+      acc.announcements += 1;
+    }
+
+    if (item.type === "complaint" && createdAtTs > complaintSeenTs) {
+      acc.complaints += 1;
+    }
+
+    return acc;
+  }, { announcements: 0, complaints: 0 });
+}
+
+function markAnnouncementsAsSeen() {
+  const latestAnnouncement = announcements
+    .filter((item) => item.type === "announcement")
+    .sort((a, b) => toTimestamp(b.createdAt) - toTimestamp(a.createdAt))[0];
+
+  const latestComplaint = announcements
+    .filter((item) => item.type === "complaint")
+    .sort((a, b) => toTimestamp(b.createdAt) - toTimestamp(a.createdAt))[0];
+
+  if (latestAnnouncement) {
+    lastSeenAnnouncementCreatedAt = latestAnnouncement.createdAt;
+    localStorage.setItem("lastSeenAnnouncementCreatedAt", latestAnnouncement.createdAt);
+  }
+
+  if (latestComplaint) {
+    lastSeenComplaintCreatedAt = latestComplaint.createdAt;
+    localStorage.setItem("lastSeenComplaintCreatedAt", latestComplaint.createdAt);
+  }
+}
+
 function renderMainTabs() {
+  const unread = getAnnouncementUnreadCounts();
+
   return `
-    <div class="tabs main-tabs">
+    <div class="tabs main-tabs no-horizontal-scroll">
       <button class="tab-button ${currentSection === "payroll" ? "active" : ""}" data-section="payroll">
         Suivi de paie
       </button>
+
       <button class="tab-button ${currentSection === "rights" ? "active" : ""}" data-section="rights">
         Calculer son droit
       </button>
-      <button class="tab-button ${currentSection === "announcements" ? "active" : ""}" data-section="announcements">
-        Annonces & Infos
+
+      <button class="tab-button main-notif-tab ${currentSection === "announcements" ? "active" : ""}" data-section="announcements">
+        <span>Annonces & Infos</span>
+        <span class="main-tab-notif main-tab-notif-announcement ${unread.announcements > 0 ? "show" : ""}">
+          ${unread.announcements}
+        </span>
+        <span class="main-tab-notif main-tab-notif-complaint ${unread.complaints > 0 ? "show" : ""}">
+          ${unread.complaints}
+        </span>
       </button>
     </div>
   `;
@@ -234,25 +267,21 @@ function renderPayrollTabs() {
   const bestTab = getBestPayrollTab();
 
   return `
-    <div class="tabs sub-tabs">
-      ${Object.keys(payrollTabs).map(key => {
+    <div class="tabs sub-tabs no-horizontal-scroll">
+      ${Object.keys(payrollTabs).map((key) => {
         const tabData = remoteData[key] || {};
         const tabProgress = getProgress(tabData);
         const tone = getProgressTone(tabProgress);
         const isBest = key === bestTab;
 
         return `
-          <button
-            class="tab-button ${key === currentPayrollTab ? "active" : ""} ${isBest ? "tab-best" : ""}"
-            data-payroll-tab="${key}"
-          >
+          <button class="tab-button ${key === currentPayrollTab ? "active" : ""} ${isBest ? "tab-best" : ""}" data-payroll-tab="${key}">
             <span class="tab-label-wrap">
               <span>${payrollTabs[key]}</span>
               ${key === "advance_15n"
                 ? `<span class="tab-badge ${isAdvanceOpen() ? "tab-open" : "tab-closed"}">${isAdvanceOpen() ? "Ouvert" : "Fermé"}</span>`
                 : ""}
             </span>
-
             <span class="tab-progress-chip progress-${tone}">
               ${tabProgress}%
             </span>
@@ -265,8 +294,8 @@ function renderPayrollTabs() {
 
 function renderRightsTabs() {
   return `
-    <div class="tabs sub-tabs">
-      ${Object.keys(rightsTabs).map(key => `
+    <div class="tabs sub-tabs no-horizontal-scroll">
+      ${Object.keys(rightsTabs).map((key) => `
         <button class="tab-button ${key === currentRightsTab ? "active" : ""}" data-rights-tab="${key}">
           ${rightsTabs[key]}
         </button>
@@ -277,7 +306,7 @@ function renderRightsTabs() {
 
 function renderAnnouncementFilters() {
   return `
-    <div class="tabs filter-tabs">
+    <div class="tabs filter-tabs no-horizontal-scroll">
       <button class="tab-button ${currentAnnouncementFilter === "all" ? "active" : ""}" data-announcement-filter="all">
         Tout
       </button>
@@ -290,7 +319,6 @@ function renderAnnouncementFilters() {
     </div>
   `;
 }
-
 function renderCircularProgress(progress) {
   const safeProgress = Math.max(0, Math.min(100, Number(progress) || 0));
   const degrees = safeProgress * 3.6;
@@ -324,8 +352,8 @@ function renderPayrollView() {
             <p class="hero-step">Étape actuelle : ${data.currentStep || "-"}</p>
             ${currentPayrollTab === "advance_15n" ? `
               <p class="advance-dates">
-                Ouvert le : ${(remoteData["advance_15n"] && remoteData["advance_15n"].openDate) || advanceDates.open}<br>
-                Fermé le : ${(remoteData["advance_15n"] && remoteData["advance_15n"].closeDate) || advanceDates.close}
+                Ouvert le : ${(remoteData.advance_15n && remoteData.advance_15n.openDate) || advanceDates.open}<br>
+                Fermé le : ${(remoteData.advance_15n && remoteData.advance_15n.closeDate) || advanceDates.close}
               </p>
             ` : ""}
           </div>
@@ -344,11 +372,11 @@ function renderPayrollView() {
       <div class="card-inner">
         <h3>Statut des virements</h3>
 
-        ${banks.map(bank => `
+        ${banks.map((bank) => `
           <div class="bank-row">
             <div class="bank-left">
               <div class="bank-logos">
-                ${bank.logos.map(logo => `
+                ${bank.logos.map((logo) => `
                   <img src="${logo}" alt="${bank.label}" class="bank-logo">
                 `).join("")}
               </div>
@@ -400,7 +428,7 @@ function renderBonusNoteOptions(includeEmptyLabel = "Pas de prime") {
     { label: `B- (${Math.round((notes.B_MINUS ?? 0.15) * 100)}%)`, value: notes.B_MINUS ?? 0.15 }
   ];
 
-  return options.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join("");
+  return options.map((opt) => `<option value="${opt.value}">${opt.label}</option>`).join("");
 }
 
 function renderRightsForm() {
@@ -539,7 +567,7 @@ function renderRightsForm() {
               <div class="form-group">
                 <label for="bonusRate">Pourcentage majoration</label>
                 <select id="bonusRate">
-                  ${(calculatorSettings.holidayRates || [1, 1.5, 2]).map(rate => `
+                  ${(calculatorSettings.holidayRates || [1, 1.5, 2]).map((rate) => `
                     <option value="${rate}">${rate * 100}%</option>
                   `).join("")}
                 </select>
@@ -583,57 +611,116 @@ function renderRightsView() {
 function getFeaturedAnnouncement() {
   if (!announcements.length) return null;
 
-  const sorted = [...announcements].sort((a, b) => {
-    const aTime = typeof a.createdAt === "object" && typeof a.createdAt.toMillis === "function"
-      ? a.createdAt.toMillis()
-      : new Date(a.createdAt || 0).getTime();
+  const sorted = [...announcements].sort((a, b) => toTimestamp(b.createdAt) - toTimestamp(a.createdAt));
 
-    const bTime = typeof b.createdAt === "object" && typeof b.createdAt.toMillis === "function"
-      ? b.createdAt.toMillis()
-      : new Date(b.createdAt || 0).getTime();
+  const urgentComplaint = sorted.find((item) => item.type === "complaint" && item.isUrgent);
+  if (urgentComplaint) return urgentComplaint;
 
-    return bTime - aTime;
-  });
+  const urgentAnnouncement = sorted.find((item) => item.type === "announcement" && item.isUrgent);
+  if (urgentAnnouncement) return urgentAnnouncement;
 
-  const highlightedComplaint = sorted.find(item => item.type === "complaint" && (item.isPinned || item.isUrgent));
-  if (highlightedComplaint) return highlightedComplaint;
+  const pinnedComplaint = sorted.find((item) => item.type === "complaint" && item.isPinned);
+  if (pinnedComplaint) return pinnedComplaint;
 
-  const pinned = sorted.find(item => item.isPinned);
-  if (pinned) return pinned;
+  const pinnedAnnouncement = sorted.find((item) => item.type === "announcement" && item.isPinned);
+  if (pinnedAnnouncement) return pinnedAnnouncement;
 
   return sorted[0];
 }
 
 function getFilteredAnnouncements() {
   if (currentAnnouncementFilter === "all") return announcements;
-  return announcements.filter(item => item.type === currentAnnouncementFilter);
+  return announcements.filter((item) => item.type === currentAnnouncementFilter);
+}
+
+function getCurrentUserReaction(announcementId) {
+  if (!announcementProfile || !announcementId) return null;
+
+  const userKey = `${String(announcementProfile.initial || "").trim().toLowerCase()}__${String(announcementProfile.matricule || "").trim().toLowerCase()}__${String(announcementProfile.pseudo || "").trim().toLowerCase()}`;
+  const key = `${announcementId}__${userKey}`;
+  return reactionRegistry[key] || null;
+}
+
+function setCurrentUserReaction(announcementId, reactionType) {
+  if (!announcementProfile || !announcementId) return;
+
+  const userKey = `${String(announcementProfile.initial || "").trim().toLowerCase()}__${String(announcementProfile.matricule || "").trim().toLowerCase()}__${String(announcementProfile.pseudo || "").trim().toLowerCase()}`;
+  const key = `${announcementId}__${userKey}`;
+
+  if (reactionType) {
+    reactionRegistry[key] = reactionType;
+  } else {
+    delete reactionRegistry[key];
+  }
+
+  saveReactionRegistry();
 }
 
 function renderAnnouncementReactions(item) {
   const reactions = item.reactions || {};
   const isComplaint = item.type === "complaint";
+  const currentReaction = getCurrentUserReaction(item.id);
 
   if (isComplaint) {
     return `
       <div class="announcement-reactions">
-        <button class="reaction-button" data-reaction-type="support" data-announcement-id="${item.id}">
+        <button class="reaction-button ${currentReaction === "support" ? "selected" : ""}" data-reaction-type="support" data-announcement-id="${item.id}">
           Je soutiens <span>${reactions.support || 0}</span>
         </button>
-<button class="reaction-button alt" data-reaction-type="no_support" data-announcement-id="${item.id}">
-  Pas concerné <span>${reactions.no_support || 0}</span>
-</button>
+        <button class="reaction-button alt ${currentReaction === "no_support" ? "selected" : ""}" data-reaction-type="no_support" data-announcement-id="${item.id}">
+          Pas concerné <span>${reactions.no_support || 0}</span>
+        </button>
       </div>
     `;
   }
 
   return `
     <div class="announcement-reactions">
-      <button class="reaction-button" data-reaction-type="like" data-announcement-id="${item.id}">
+      <button class="reaction-button ${currentReaction === "like" ? "selected" : ""}" data-reaction-type="like" data-announcement-id="${item.id}">
         J’aime <span>${reactions.like || 0}</span>
       </button>
-      <button class="reaction-button alt" data-reaction-type="dislike" data-announcement-id="${item.id}">
+      <button class="reaction-button alt ${currentReaction === "dislike" ? "selected" : ""}" data-reaction-type="dislike" data-announcement-id="${item.id}">
         J’aime pas <span>${reactions.dislike || 0}</span>
       </button>
+    </div>
+  `;
+}
+
+function isAnnouncementOwner(item) {
+  if (!announcementProfile || !item) return false;
+
+  return (
+    String(item.employeeInitial || "").trim().toLowerCase() === String(announcementProfile.initial || "").trim().toLowerCase() &&
+    String(item.employeeMatricule || "").trim().toLowerCase() === String(announcementProfile.matricule || "").trim().toLowerCase() &&
+    String(item.publicationPseudo || "").trim().toLowerCase() === String(announcementProfile.pseudo || "").trim().toLowerCase()
+  );
+}
+
+function renderAnnouncementEditForm(item) {
+  if (editingAnnouncementId !== item.id) return "";
+
+  return `
+    <div class="announcement-inline-editor">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label for="editAnnouncementTitle">Titre</label>
+          <input id="editAnnouncementTitle" type="text" maxlength="120" value="${escapeHtml(item.title || "")}">
+        </div>
+
+        <div class="form-group full">
+          <label for="editAnnouncementContent">Contenu</label>
+          <textarea id="editAnnouncementContent" rows="5">${escapeHtml(item.content || "")}</textarea>
+        </div>
+      </div>
+
+      <div class="announcement-actions owner-actions">
+        <button class="announcement-action-button save" data-save-announcement="${item.id}">
+          Enregistrer
+        </button>
+        <button class="announcement-action-button cancel" data-cancel-edit-announcement="true">
+          Annuler
+        </button>
+      </div>
     </div>
   `;
 }
@@ -642,6 +729,7 @@ function renderAnnouncementCard(item) {
   const isComplaint = item.type === "complaint";
   const badge = isComplaint ? "⚠ Attention" : "📢 Info";
   const extraClass = isComplaint ? "announcement-card complaint-card" : "announcement-card";
+  const isOwner = isAnnouncementOwner(item);
 
   return `
     <div class="${extraClass}">
@@ -655,9 +743,32 @@ function renderAnnouncementCard(item) {
 
       <div class="announcement-meta">
         Publié par : <strong>${escapeHtml(item.publicationPseudo || "Anonyme")}</strong>
+        ${item.isUrgent ? `<span class="inline-urgent-badge">Urgent</span>` : ""}
+        ${item.isPinned ? `<span class="inline-pinned-badge">Épinglé</span>` : ""}
       </div>
 
       ${renderAnnouncementReactions(item)}
+
+      <div class="announcement-actions ${isOwner ? "owner-actions" : ""}">
+        ${
+          isOwner
+            ? `
+              <button class="announcement-action-button edit" data-edit-announcement="${item.id}">
+                Modifier
+              </button>
+              <button class="announcement-action-button delete" data-delete-announcement="${item.id}">
+                Supprimer
+              </button>
+            `
+            : `
+              <button class="report-button" data-report-announcement="${item.id}">
+                Signaler
+              </button>
+            `
+        }
+      </div>
+
+      ${isOwner ? renderAnnouncementEditForm(item) : ""}
     </div>
   `;
 }
@@ -670,23 +781,23 @@ function renderAnnouncementIdentityGate() {
         <p class="hero-step">
           Renseignez vos informations une seule fois pour publier plus rapidement ensuite.
           Votre identité réelle ne sera pas affichée publiquement.
-          Seul votre pseudo pourra apparaître après validation admin.
+          Seul votre pseudo pourra apparaître publiquement.
         </p>
 
         <div class="form-grid">
           <div class="form-group">
             <label for="identityInitial">Initial</label>
-            <input id="identityInitial" type="text" maxlength="10" placeholder="Ex : ROB">
+            <input id="identityInitial" type="text" maxlength="10" placeholder="Ex : ROB" value="${escapeHtml(announcementProfile?.initial || "")}">
           </div>
 
           <div class="form-group">
             <label for="identityMatricule">Numéro matricule</label>
-            <input id="identityMatricule" type="text" maxlength="30" placeholder="Ex : 417 ou S0417">
+            <input id="identityMatricule" type="text" maxlength="30" placeholder="Ex : 417 ou S0417" value="${escapeHtml(announcementProfile?.matricule || "")}">
           </div>
 
           <div class="form-group full">
             <label for="identityPseudo">Pseudo public</label>
-            <input id="identityPseudo" type="text" maxlength="40" placeholder="Ex : Tigre Rose">
+            <input id="identityPseudo" type="text" maxlength="40" placeholder="Ex : Tigre Rose" value="${escapeHtml(announcementProfile?.pseudo || "")}">
           </div>
         </div>
 
@@ -704,7 +815,7 @@ function renderAnnouncementComposer() {
   return `
     <div class="card composer-card">
       <div class="card-inner">
-        <h3>Publier</h3>
+        <h3>${editingAnnouncementId ? "Modifier votre publication" : "Publier"}</h3>
 
         <div class="publish-choice-grid">
           <button class="publish-choice ${selectedPublicationType === "announcement" ? "active" : ""}" data-publication-type="announcement">
@@ -733,17 +844,17 @@ function renderAnnouncementComposer() {
                 </div>
               </div>
 
-<button class="action-button cyan" data-submit-publication="true">
-  ${selectedPublicationType === "announcement" ? "Publier maintenant" : "Envoyer pour validation"}
-</button>
+              <button class="action-button cyan" data-submit-publication="true">
+                ${selectedPublicationType === "announcement" ? "Publier maintenant" : "Envoyer pour validation"}
+              </button>
 
-<p class="hero-step">
-  ${
-    selectedPublicationType === "announcement"
-      ? "Votre annonce sera publiée immédiatement. Votre identité réelle ne sera pas affichée publiquement. Seul votre pseudo sera visible."
-      : "Votre plainte sera envoyée à l’administrateur pour validation. Votre identité réelle ne sera pas affichée publiquement."
-  }
-</p>
+              <p class="hero-step">
+                ${
+                  selectedPublicationType === "announcement"
+                    ? "Votre annonce sera publiée immédiatement. Votre identité réelle ne sera pas affichée publiquement. Seul votre pseudo sera visible."
+                    : "Votre plainte sera envoyée à l’administrateur pour validation. Votre identité réelle ne sera pas affichée publiquement."
+                }
+              </p>
             `
             : ""
         }
@@ -780,16 +891,22 @@ function renderAnnouncementsHero() {
   }
 
   const isComplaint = featured.type === "complaint";
-  const title = isComplaint ? "Plainte du jour" : "Annonce du jour";
+  const title = featured.isUrgent
+    ? (isComplaint ? "Plainte urgente" : "Annonce urgente")
+    : (isComplaint ? "Plainte du jour" : "Annonce du jour");
 
   return `
-    <div class="card hero-card ${isComplaint ? "hero-warning" : ""}">
+    <div class="card hero-card ${isComplaint ? "hero-warning" : ""} ${featured.isUrgent ? "hero-urgent" : ""}">
       <div class="card-inner">
         <div class="hero-head">
           <div>
             <h2>${title}</h2>
             <p class="hero-step">${escapeHtml(featured.title || "")}</p>
-            <p class="hero-step">Publié par : <strong>${escapeHtml(featured.publicationPseudo || "Anonyme")}</strong></p>
+            <p class="hero-step">
+              Publié par : <strong>${escapeHtml(featured.publicationPseudo || "Anonyme")}</strong>
+              ${featured.isUrgent ? `<span class="hero-inline-badge urgent">Urgent</span>` : ""}
+              ${featured.isPinned ? `<span class="hero-inline-badge pinned">Épinglé</span>` : ""}
+            </p>
           </div>
           <button class="action-button cyan hero-publish-button" data-toggle-composer="true">
             Publier
@@ -809,18 +926,17 @@ function renderAnnouncementsView() {
 
   return `
     ${renderAnnouncementsHero()}
-
     ${announcementComposerOpen ? renderAnnouncementComposer() : ""}
-
     ${renderAnnouncementFilters()}
 
     <div class="card">
       <div class="card-inner">
-        <h3>Publications validées</h3>
+        <h3>Publications visibles</h3>
         <div class="announcement-list">
-          ${filtered.length
-            ? filtered.map(renderAnnouncementCard).join("")
-            : `<div class="empty-state">Aucune publication trouvée pour ce filtre.</div>`
+          ${
+            filtered.length
+              ? filtered.map(renderAnnouncementCard).join("")
+              : `<div class="empty-state">Aucune publication trouvée pour ce filtre.</div>`
           }
         </div>
       </div>
@@ -884,22 +1000,25 @@ function animateProgressRings() {
 }
 
 function bindEvents() {
-  document.querySelectorAll("[data-section]").forEach(btn => {
+  document.querySelectorAll("[data-section]").forEach((btn) => {
     btn.onclick = () => {
       currentSection = btn.getAttribute("data-section");
       localStorage.setItem("currentSection", currentSection);
 
-      if (currentSection !== "announcements") {
+      if (currentSection === "announcements") {
+        markAnnouncementsAsSeen();
+      } else {
         announcementComposerOpen = false;
         selectedPublicationType = "";
         submissionStatus = null;
+        editingAnnouncementId = null;
       }
 
       render();
     };
   });
 
-  document.querySelectorAll("[data-payroll-tab]").forEach(btn => {
+  document.querySelectorAll("[data-payroll-tab]").forEach((btn) => {
     btn.onclick = () => {
       currentPayrollTab = btn.getAttribute("data-payroll-tab");
       localStorage.setItem("currentPayrollTab", currentPayrollTab);
@@ -907,7 +1026,7 @@ function bindEvents() {
     };
   });
 
-  document.querySelectorAll("[data-rights-tab]").forEach(btn => {
+  document.querySelectorAll("[data-rights-tab]").forEach((btn) => {
     btn.onclick = () => {
       currentRightsTab = btn.getAttribute("data-rights-tab");
       localStorage.setItem("currentRightsTab", currentRightsTab);
@@ -915,7 +1034,7 @@ function bindEvents() {
     };
   });
 
-  document.querySelectorAll("[data-announcement-filter]").forEach(btn => {
+  document.querySelectorAll("[data-announcement-filter]").forEach((btn) => {
     btn.onclick = () => {
       currentAnnouncementFilter = btn.getAttribute("data-announcement-filter");
       localStorage.setItem("currentAnnouncementFilter", currentAnnouncementFilter);
@@ -923,14 +1042,14 @@ function bindEvents() {
     };
   });
 
-  document.querySelectorAll("[data-calc-action]").forEach(btn => {
+  document.querySelectorAll("[data-calc-action]").forEach((btn) => {
     btn.onclick = () => {
       const action = btn.getAttribute("data-calc-action");
       performCalculation(action);
     };
   });
 
-  document.querySelectorAll("[data-reaction-type][data-announcement-id]").forEach(btn => {
+  document.querySelectorAll("[data-reaction-type][data-announcement-id]").forEach((btn) => {
     btn.onclick = () => {
       reactToAnnouncement(
         btn.getAttribute("data-announcement-id"),
@@ -939,24 +1058,26 @@ function bindEvents() {
     };
   });
 
-  document.querySelectorAll("[data-save-announcement-profile]").forEach(btn => {
+  document.querySelectorAll("[data-save-announcement-profile]").forEach((btn) => {
     btn.onclick = () => {
       saveAnnouncementProfile();
     };
   });
 
-  document.querySelectorAll("[data-toggle-composer]").forEach(btn => {
+  document.querySelectorAll("[data-toggle-composer]").forEach((btn) => {
     btn.onclick = () => {
       announcementComposerOpen = !announcementComposerOpen;
+
       if (!announcementComposerOpen) {
         selectedPublicationType = "";
         submissionStatus = null;
       }
+
       render();
     };
   });
 
-  document.querySelectorAll("[data-publication-type]").forEach(btn => {
+  document.querySelectorAll("[data-publication-type]").forEach((btn) => {
     btn.onclick = () => {
       selectedPublicationType = btn.getAttribute("data-publication-type");
       submissionStatus = null;
@@ -964,9 +1085,41 @@ function bindEvents() {
     };
   });
 
-  document.querySelectorAll("[data-submit-publication]").forEach(btn => {
+  document.querySelectorAll("[data-submit-publication]").forEach((btn) => {
     btn.onclick = () => {
       submitPublication();
+    };
+  });
+
+  document.querySelectorAll("[data-report-announcement]").forEach((btn) => {
+    btn.onclick = () => {
+      reportAnnouncement(btn.getAttribute("data-report-announcement"));
+    };
+  });
+
+  document.querySelectorAll("[data-edit-announcement]").forEach((btn) => {
+    btn.onclick = () => {
+      editingAnnouncementId = btn.getAttribute("data-edit-announcement");
+      render();
+    };
+  });
+
+  document.querySelectorAll("[data-cancel-edit-announcement]").forEach((btn) => {
+    btn.onclick = () => {
+      editingAnnouncementId = null;
+      render();
+    };
+  });
+
+  document.querySelectorAll("[data-save-announcement]").forEach((btn) => {
+    btn.onclick = () => {
+      saveEditedAnnouncement(btn.getAttribute("data-save-announcement"));
+    };
+  });
+
+  document.querySelectorAll("[data-delete-announcement]").forEach((btn) => {
+    btn.onclick = () => {
+      deleteOwnAnnouncement(btn.getAttribute("data-delete-announcement"));
     };
   });
 
@@ -983,12 +1136,7 @@ function saveAnnouncementProfile() {
     return;
   }
 
-  announcementProfile = {
-    initial,
-    matricule,
-    pseudo
-  };
-
+  announcementProfile = { initial, matricule, pseudo };
   localStorage.setItem("announcementProfile", JSON.stringify(announcementProfile));
   render();
 }
@@ -1046,7 +1194,6 @@ function performCalculation(action) {
       break;
   }
 }
-
 function calculateResignationWithNotice() {
   const { salary, seniority, leaveDays, bonusNote } = readCommonStcFields();
 
@@ -1196,10 +1343,15 @@ function calculateHolidayBonus() {
 }
 
 async function reactToAnnouncement(announcementId, reactionType) {
-  if (typeof db === "undefined") return;
+  if (typeof db === "undefined" || !announcementProfile) return;
 
   try {
     const ref = db.collection("announcements").doc(announcementId);
+    const previousReaction = getCurrentUserReaction(announcementId);
+
+    if (previousReaction === reactionType) {
+      return;
+    }
 
     await db.runTransaction(async (transaction) => {
       const doc = await transaction.get(ref);
@@ -1207,12 +1359,19 @@ async function reactToAnnouncement(announcementId, reactionType) {
 
       const data = doc.data() || {};
       const reactions = { ...(data.reactions || {}) };
+
+      if (previousReaction) {
+        reactions[previousReaction] = Math.max(0, Number(reactions[previousReaction] || 0) - 1);
+      }
+
       reactions[reactionType] = Number(reactions[reactionType] || 0) + 1;
 
       transaction.update(ref, { reactions });
     });
+
+    setCurrentUserReaction(announcementId, reactionType);
   } catch (error) {
-    console.error("Erreur réaction annonce :", error);
+    console.error("Erreur réaction publication :", error);
   }
 }
 
@@ -1245,6 +1404,8 @@ async function submitPublication() {
   }
 
   try {
+    const now = new Date().toISOString();
+
     const basePayload = {
       type: selectedPublicationType,
       title,
@@ -1252,7 +1413,7 @@ async function submitPublication() {
       employeeInitial: announcementProfile.initial,
       employeeMatricule: announcementProfile.matricule,
       publicationPseudo: announcementProfile.pseudo,
-      createdAt: new Date().toISOString()
+      createdAt: now
     };
 
     if (selectedPublicationType === "announcement") {
@@ -1262,7 +1423,7 @@ async function submitPublication() {
         isReported: false,
         isPinned: false,
         isUrgent: false,
-        approvedAt: new Date().toISOString(),
+        approvedAt: now,
         approvedBy: "self",
         reactions: {
           like: 0,
@@ -1271,6 +1432,10 @@ async function submitPublication() {
       });
 
       submissionStatus = "Votre annonce a été publiée immédiatement.";
+      currentAnnouncementFilter = "announcement";
+      localStorage.setItem("currentAnnouncementFilter", currentAnnouncementFilter);
+      lastSeenAnnouncementCreatedAt = now;
+      localStorage.setItem("lastSeenAnnouncementCreatedAt", now);
     } else {
       await db.collection("submission_queue").add({
         ...basePayload,
@@ -1290,28 +1455,115 @@ async function submitPublication() {
   }
 }
 
-function startApp() {
-  const renderSafe = () => render();
+async function reportAnnouncement(announcementId) {
+  const confirmed = confirm("Voulez-vous vraiment signaler cette publication ?");
+  if (!confirmed) return;
 
   if (typeof db === "undefined") {
-    renderSafe();
+    alert("Configuration Firebase introuvable.");
     return;
   }
 
-  db.collection("statuses").onSnapshot(snapshot => {
-    const temp = {};
+  try {
+    await db.collection("announcements").doc(announcementId).set({
+      isReported: true,
+      visibility: "hidden",
+      reportedAt: new Date().toISOString()
+    }, { merge: true });
 
-    snapshot.forEach(doc => {
-      temp[doc.id] = doc.data();
+    submissionStatus = "La publication a été signalée et masquée automatiquement.";
+    render();
+  } catch (error) {
+    console.error("Erreur signalement publication :", error);
+    alert("Erreur lors du signalement. Réessayez.");
+  }
+}
+
+async function saveEditedAnnouncement(announcementId) {
+  if (typeof db === "undefined") return;
+
+  const title = String(document.getElementById("editAnnouncementTitle")?.value || "").trim();
+  const content = String(document.getElementById("editAnnouncementContent")?.value || "").trim();
+
+  if (!title || !content) {
+    alert("Veuillez remplir le titre et le contenu.");
+    return;
+  }
+
+  const target = announcements.find((item) => item.id === announcementId);
+  if (!target || !isAnnouncementOwner(target)) {
+    alert("Vous ne pouvez pas modifier cette publication.");
+    return;
+  }
+
+  try {
+    await db.collection("announcements").doc(announcementId).set({
+      title,
+      content,
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+
+    editingAnnouncementId = null;
+    submissionStatus = "Votre publication a été modifiée.";
+    render();
+  } catch (error) {
+    console.error("Erreur modification publication :", error);
+    alert("Erreur lors de la modification. Réessayez.");
+  }
+}
+
+async function deleteOwnAnnouncement(announcementId) {
+  if (typeof db === "undefined") return;
+
+  const target = announcements.find((item) => item.id === announcementId);
+  if (!target || !isAnnouncementOwner(target)) {
+    alert("Vous ne pouvez pas supprimer cette publication.");
+    return;
+  }
+
+  const confirmed = confirm("Voulez-vous vraiment supprimer cette publication ?");
+  if (!confirmed) return;
+
+  try {
+    await db.collection("announcements").doc(announcementId).delete();
+    submissionStatus = "Votre publication a été supprimée.";
+    editingAnnouncementId = null;
+    render();
+  } catch (error) {
+    console.error("Erreur suppression publication :", error);
+    alert("Erreur lors de la suppression. Réessayez.");
+  }
+}
+
+function renderSafe() {
+  try {
+    if (currentSection === "announcements") {
+      markAnnouncementsAsSeen();
+    }
+    render();
+  } catch (error) {
+    console.error("Erreur render :", error);
+  }
+}
+
+function startRealtimeListeners() {
+  if (typeof db === "undefined") {
+    render();
+    return;
+  }
+
+  db.collection("statuses").onSnapshot((snapshot) => {
+    const next = {};
+    snapshot.forEach((doc) => {
+      next[doc.id] = doc.data() || {};
     });
-
-    remoteData = temp;
+    remoteData = next;
     renderSafe();
   }, () => {
     renderSafe();
   });
 
-  db.collection("calculator_settings").doc("rules").onSnapshot(doc => {
+  db.collection("calculator_settings").doc("rules").onSnapshot((doc) => {
     if (doc.exists) {
       mergeCalculatorSettings(doc.data() || {});
     }
@@ -1320,18 +1572,32 @@ function startApp() {
     renderSafe();
   });
 
-db.collection("announcements").onSnapshot(snapshot => {
-  announcements = snapshot.docs
-    .map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }))
-    .filter(item => item.visibility !== "hidden" && item.isReported !== true);
+  db.collection("announcements").onSnapshot((snapshot) => {
+    announcements = snapshot.docs
+      .map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      .filter((item) => item.visibility !== "hidden" && item.isReported !== true)
+      .sort((a, b) => {
+        const aUrgent = a.isUrgent ? 1 : 0;
+        const bUrgent = b.isUrgent ? 1 : 0;
+        if (aUrgent !== bUrgent) return bUrgent - aUrgent;
 
-  renderSafe();
-}, () => {
-  renderSafe();
-});
+        const aPinned = a.isPinned ? 1 : 0;
+        const bPinned = b.isPinned ? 1 : 0;
+        if (aPinned !== bPinned) return bPinned - aPinned;
+
+        return toTimestamp(b.createdAt) - toTimestamp(a.createdAt);
+      });
+
+    renderSafe();
+  }, () => {
+    renderSafe();
+  });
 }
 
-startApp();
+document.addEventListener("DOMContentLoaded", () => {
+  startRealtimeListeners();
+  render();
+});
