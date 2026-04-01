@@ -619,9 +619,9 @@ function renderAnnouncementReactions(item) {
         <button class="reaction-button" data-reaction-type="support" data-announcement-id="${item.id}">
           Je soutiens <span>${reactions.support || 0}</span>
         </button>
-        <button class="reaction-button alt" data-reaction-type="no_support" data-announcement-id="${item.id}">
-          Je ne soutiens pas <span>${reactions.no_support || 0}</span>
-        </button>
+<button class="reaction-button alt" data-reaction-type="no_support" data-announcement-id="${item.id}">
+  Pas concerné <span>${reactions.no_support || 0}</span>
+</button>
       </div>
     `;
   }
