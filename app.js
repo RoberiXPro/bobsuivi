@@ -139,8 +139,18 @@ function getStatusClass(value) {
 }
 
 function getProgress(data) {
-  const step = String(data.currentStep || "").toLowerCase();
+  const step = String(data.currentStep || "").toLowerCase().trim();
   const bmoi = String(data.bmoi || "").toLowerCase();
+
+  if (
+    step === "" ||
+    step === "rien" ||
+    step === "aucun" ||
+    step === "non démarré" ||
+    step === "non demarre"
+  ) {
+    return 0;
+  }
 
   if (bmoi === "ok" || bmoi === "positionné" || bmoi === "positionne") {
     return 100;
@@ -1349,10 +1359,6 @@ async function reactToAnnouncement(announcementId, reactionType) {
     const ref = db.collection("announcements").doc(announcementId);
     const previousReaction = getCurrentUserReaction(announcementId);
 
-    if (previousReaction === reactionType) {
-      return;
-    }
-
     await db.runTransaction(async (transaction) => {
       const doc = await transaction.get(ref);
       if (!doc.exists) return;
@@ -1360,16 +1366,25 @@ async function reactToAnnouncement(announcementId, reactionType) {
       const data = doc.data() || {};
       const reactions = { ...(data.reactions || {}) };
 
+      if (previousReaction === reactionType) {
+        reactions[reactionType] = Math.max(0, Number(reactions[reactionType] || 0) - 1);
+        transaction.update(ref, { reactions });
+        return;
+      }
+
       if (previousReaction) {
         reactions[previousReaction] = Math.max(0, Number(reactions[previousReaction] || 0) - 1);
       }
 
       reactions[reactionType] = Number(reactions[reactionType] || 0) + 1;
-
       transaction.update(ref, { reactions });
     });
 
-    setCurrentUserReaction(announcementId, reactionType);
+    if (previousReaction === reactionType) {
+      setCurrentUserReaction(announcementId, null);
+    } else {
+      setCurrentUserReaction(announcementId, reactionType);
+    }
   } catch (error) {
     console.error("Erreur réaction publication :", error);
   }
