@@ -1691,3 +1691,18 @@ h1 {
     font-size: 12px;
   }
 }
+.reaction-button.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 16px;
+}
+
+.reaction-button.icon span {
+  font-size: 13px;
+  font-weight: 800;
+}
+.reaction-button.icon.selected {
+  transform: scale(1.08);
+}
