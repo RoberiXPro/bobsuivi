@@ -366,11 +366,15 @@ h1 {
 }
 
 .hero-warning {
-  border-color: rgba(255, 123, 114, 0.2);
+  border-color: rgba(255, 82, 82, 0.34);
   background:
-    radial-gradient(circle at 100% 0%, rgba(255, 123, 114, 0.15), transparent 28%),
-    radial-gradient(circle at 0% 100%, rgba(255, 209, 102, 0.08), transparent 24%),
-    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+    radial-gradient(circle at 100% 0%, rgba(255, 70, 70, 0.22), transparent 28%),
+    radial-gradient(circle at 0% 100%, rgba(255, 150, 70, 0.10), transparent 24%),
+    linear-gradient(180deg, rgba(60, 8, 8, 0.92), rgba(25, 8, 12, 0.96));
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.44),
+    0 0 0 1px rgba(255, 82, 82, 0.10),
+    inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 .hero-card::before {
@@ -889,6 +893,28 @@ h1 {
   color: #fff;
   background: linear-gradient(135deg, #ff4d4f, #b00020);
   box-shadow: 0 8px 16px rgba(176, 0, 32, 0.30);
+}
+
+.complaint-reactions .reaction-button.support {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255, 120, 120, 0.18);
+}
+
+.complaint-reactions .reaction-button.support.selected {
+  background: linear-gradient(135deg, #ff8a65, #ff5252);
+  color: #fff;
+  border-color: transparent;
+}
+
+.complaint-reactions .reaction-button.neutral {
+  background: rgba(255,255,255,0.03);
+  border-color: rgba(255,255,255,0.08);
+}
+
+.complaint-reactions .reaction-button.neutral.selected {
+  background: linear-gradient(135deg, #7f8aa3, #5d6b85);
+  color: #fff;
+  border-color: transparent;
 }
 
 .announcement-badge.warning {
