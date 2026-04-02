@@ -673,34 +673,27 @@ function renderAnnouncementReactions(item) {
 
   if (isComplaint) {
     return `
-      <div class="announcement-reactions">
-return `
-  <div class="announcement-reactions complaint-reactions">
-    <button class="reaction-button support ${currentReaction === "support" ? "selected" : ""}" data-reaction-type="support" data-announcement-id="${item.id}">
-      🛡️ Je soutiens <span>${reactions.support || 0}</span>
-    </button>
-    <button class="reaction-button neutral ${currentReaction === "no_support" ? "selected" : ""}" data-reaction-type="no_support" data-announcement-id="${item.id}">
-      ◌ Pas concerné <span>${reactions.no_support || 0}</span>
-    </button>
-  </div>
-`;
-        <button class="reaction-button alt ${currentReaction === "no_support" ? "selected" : ""}" data-reaction-type="no_support" data-announcement-id="${item.id}">
-          Pas concerné <span>${reactions.no_support || 0}</span>
+      <div class="announcement-reactions complaint-reactions">
+        <button class="reaction-button support ${currentReaction === "support" ? "selected" : ""}" data-reaction-type="support" data-announcement-id="${item.id}">
+          🛡️ Je soutiens <span>${reactions.support || 0}</span>
+        </button>
+        <button class="reaction-button neutral ${currentReaction === "no_support" ? "selected" : ""}" data-reaction-type="no_support" data-announcement-id="${item.id}">
+          ◌ Pas concerné <span>${reactions.no_support || 0}</span>
         </button>
       </div>
     `;
   }
 
-return `
-  <div class="announcement-reactions">
-    <button class="reaction-button icon ${currentReaction === "like" ? "selected" : ""}" data-reaction-type="like" data-announcement-id="${item.id}">
-      👍 <span>${reactions.like || 0}</span>
-    </button>
-    <button class="reaction-button icon alt ${currentReaction === "dislike" ? "selected" : ""}" data-reaction-type="dislike" data-announcement-id="${item.id}">
-      👎 <span>${reactions.dislike || 0}</span>
-    </button>
-  </div>
-`;
+  return `
+    <div class="announcement-reactions">
+      <button class="reaction-button icon ${currentReaction === "like" ? "selected" : ""}" data-reaction-type="like" data-announcement-id="${item.id}">
+        👍 <span>${reactions.like || 0}</span>
+      </button>
+      <button class="reaction-button icon alt ${currentReaction === "dislike" ? "selected" : ""}" data-reaction-type="dislike" data-announcement-id="${item.id}">
+        👎 <span>${reactions.dislike || 0}</span>
+      </button>
+    </div>
+  `;
 }
 
 function isAnnouncementOwner(item) {
