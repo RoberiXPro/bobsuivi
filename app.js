@@ -674,9 +674,16 @@ function renderAnnouncementReactions(item) {
   if (isComplaint) {
     return `
       <div class="announcement-reactions">
-        <button class="reaction-button ${currentReaction === "support" ? "selected" : ""}" data-reaction-type="support" data-announcement-id="${item.id}">
-          Je soutiens <span>${reactions.support || 0}</span>
-        </button>
+return `
+  <div class="announcement-reactions complaint-reactions">
+    <button class="reaction-button support ${currentReaction === "support" ? "selected" : ""}" data-reaction-type="support" data-announcement-id="${item.id}">
+      🛡️ Je soutiens <span>${reactions.support || 0}</span>
+    </button>
+    <button class="reaction-button neutral ${currentReaction === "no_support" ? "selected" : ""}" data-reaction-type="no_support" data-announcement-id="${item.id}">
+      ◌ Pas concerné <span>${reactions.no_support || 0}</span>
+    </button>
+  </div>
+`;
         <button class="reaction-button alt ${currentReaction === "no_support" ? "selected" : ""}" data-reaction-type="no_support" data-announcement-id="${item.id}">
           Pas concerné <span>${reactions.no_support || 0}</span>
         </button>
