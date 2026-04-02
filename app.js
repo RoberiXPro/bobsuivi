@@ -684,16 +684,16 @@ function renderAnnouncementReactions(item) {
     `;
   }
 
-  return `
-    <div class="announcement-reactions">
-      <button class="reaction-button ${currentReaction === "like" ? "selected" : ""}" data-reaction-type="like" data-announcement-id="${item.id}">
-        J’aime <span>${reactions.like || 0}</span>
-      </button>
-      <button class="reaction-button alt ${currentReaction === "dislike" ? "selected" : ""}" data-reaction-type="dislike" data-announcement-id="${item.id}">
-        J’aime pas <span>${reactions.dislike || 0}</span>
-      </button>
-    </div>
-  `;
+return `
+  <div class="announcement-reactions">
+    <button class="reaction-button icon ${currentReaction === "like" ? "selected" : ""}" data-reaction-type="like" data-announcement-id="${item.id}">
+      👍 <span>${reactions.like || 0}</span>
+    </button>
+    <button class="reaction-button icon alt ${currentReaction === "dislike" ? "selected" : ""}" data-reaction-type="dislike" data-announcement-id="${item.id}">
+      👎 <span>${reactions.dislike || 0}</span>
+    </button>
+  </div>
+`;
 }
 
 function isAnnouncementOwner(item) {
