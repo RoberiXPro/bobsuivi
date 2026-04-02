@@ -744,7 +744,7 @@ function renderAnnouncementEditForm(item) {
 
 function renderAnnouncementCard(item) {
   const isComplaint = item.type === "complaint";
-  const badge = isComplaint ? "⚠ Attention" : "📢 Info";
+ const badge = isComplaint ? "🚨 Plainte" : "📢 Annonce";
   const extraClass = isComplaint ? "announcement-card complaint-card" : "announcement-card";
   const isOwner = isAnnouncementOwner(item);
 
@@ -908,9 +908,9 @@ function renderAnnouncementsHero() {
   }
 
   const isComplaint = featured.type === "complaint";
-  const title = featured.isUrgent
-    ? (isComplaint ? "Plainte urgente" : "Annonce urgente")
-    : (isComplaint ? "Plainte du jour" : "Annonce du jour");
+const title = featured.isUrgent
+  ? (isComplaint ? "🚨 Plainte urgente" : "📢 Annonce urgente")
+  : (isComplaint ? "🚨 Plainte mise en avant" : "📢 Annonce du jour");
 
   return `
     <div class="card hero-card ${isComplaint ? "hero-warning" : ""} ${featured.isUrgent ? "hero-urgent" : ""}">
