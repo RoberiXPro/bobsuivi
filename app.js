@@ -958,7 +958,7 @@ function render() {
   const app = document.getElementById("app");
 
   app.innerHTML = `
-    <div class="app-shell">
+<div class="app-shell section-${currentSection}">
       <h1>${
         currentSection === "payroll"
           ? "💰 Suivi des Paies"
