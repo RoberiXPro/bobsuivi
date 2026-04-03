@@ -187,6 +187,72 @@ h1 {
     0 16px 32px rgba(83, 216, 255, 0.28),
     inset 0 1px 0 rgba(255,255,255,0.25);
 }
+.main-tabs .tab-button[data-section="payroll"] {
+  border-color: rgba(83, 216, 255, 0.18);
+  background:
+    radial-gradient(circle at top right, rgba(83, 216, 255, 0.12), transparent 36%),
+    linear-gradient(180deg, rgba(83, 216, 255, 0.08), rgba(255,255,255,0.03));
+}
+
+.main-tabs .tab-button[data-section="payroll"]:hover {
+  border-color: rgba(83, 216, 255, 0.30);
+  background:
+    radial-gradient(circle at top right, rgba(83, 216, 255, 0.16), transparent 38%),
+    linear-gradient(180deg, rgba(83, 216, 255, 0.12), rgba(255,255,255,0.04));
+}
+
+.main-tabs .tab-button[data-section="payroll"].active {
+  background: linear-gradient(135deg, #53d8ff, #4f8cff);
+  color: #04111d;
+  box-shadow:
+    0 18px 34px rgba(83, 216, 255, 0.28),
+    inset 0 1px 0 rgba(255,255,255,0.22);
+}
+
+.main-tabs .tab-button[data-section="rights"] {
+  border-color: rgba(168, 85, 247, 0.18);
+  background:
+    radial-gradient(circle at top right, rgba(168, 85, 247, 0.14), transparent 36%),
+    linear-gradient(180deg, rgba(168, 85, 247, 0.09), rgba(255,255,255,0.03));
+}
+
+.main-tabs .tab-button[data-section="rights"]:hover {
+  border-color: rgba(168, 85, 247, 0.32);
+  background:
+    radial-gradient(circle at top right, rgba(168, 85, 247, 0.18), transparent 38%),
+    linear-gradient(180deg, rgba(168, 85, 247, 0.12), rgba(255,255,255,0.04));
+}
+
+.main-tabs .tab-button[data-section="rights"].active {
+  background: linear-gradient(135deg, #a855f7, #f59e0b);
+  color: #fff;
+  box-shadow:
+    0 18px 34px rgba(168, 85, 247, 0.28),
+    inset 0 1px 0 rgba(255,255,255,0.16);
+}
+
+.main-tabs .tab-button[data-section="announcements"] {
+  border-color: rgba(54, 211, 153, 0.18);
+  background:
+    radial-gradient(circle at top right, rgba(54, 211, 153, 0.12), transparent 36%),
+    linear-gradient(180deg, rgba(54, 211, 153, 0.08), rgba(255,255,255,0.03));
+}
+
+.main-tabs .tab-button[data-section="announcements"]:hover {
+  border-color: rgba(54, 211, 153, 0.30);
+  background:
+    radial-gradient(circle at top right, rgba(54, 211, 153, 0.16), transparent 38%),
+    linear-gradient(180deg, rgba(54, 211, 153, 0.12), rgba(255,255,255,0.04));
+}
+
+.main-tabs .tab-button[data-section="announcements"].active {
+  background: linear-gradient(135deg, #36d399, #ff6b6b);
+  color: #04111d;
+  box-shadow:
+    0 18px 34px rgba(54, 211, 153, 0.24),
+    inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
 .main-notif-tab {
   position: relative;
   overflow: visible;
@@ -1289,6 +1355,77 @@ h1 {
 .card-warning {
   border-color: rgba(255, 123, 114, 0.18);
 }
+.app-shell.section-payroll {
+  position: relative;
+}
+
+.app-shell.section-payroll::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 12% 14%, rgba(83, 216, 255, 0.18), transparent 22%),
+    radial-gradient(circle at 88% 12%, rgba(79, 140, 255, 0.14), transparent 24%),
+    radial-gradient(circle at 50% 100%, rgba(126, 231, 255, 0.08), transparent 30%);
+}
+
+.app-shell.section-rights {
+  position: relative;
+}
+
+.app-shell.section-rights::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 12% 14%, rgba(168, 85, 247, 0.20), transparent 22%),
+    radial-gradient(circle at 88% 12%, rgba(245, 158, 11, 0.14), transparent 24%),
+    radial-gradient(circle at 50% 100%, rgba(192, 132, 252, 0.08), transparent 30%);
+}
+
+.app-shell.section-announcements {
+  position: relative;
+}
+
+.app-shell.section-announcements::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(54, 211, 153, 0.18), transparent 22%),
+    radial-gradient(circle at 88% 12%, rgba(255, 107, 107, 0.14), transparent 24%),
+    radial-gradient(circle at 50% 100%, rgba(255, 150, 70, 0.08), transparent 30%);
+}
+.section-payroll .hero-card {
+  border-color: rgba(83, 216, 255, 0.20);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(83, 216, 255, 0.18), transparent 28%),
+    radial-gradient(circle at 0% 100%, rgba(79, 140, 255, 0.14), transparent 24%),
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+}
+
+.section-rights .hero-card {
+  border-color: rgba(168, 85, 247, 0.24);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(168, 85, 247, 0.18), transparent 28%),
+    radial-gradient(circle at 0% 100%, rgba(245, 158, 11, 0.12), transparent 24%),
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+}
+
+.section-announcements .hero-card:not(.hero-warning):not(.hero-urgent) {
+  border-color: rgba(54, 211, 153, 0.20);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(54, 211, 153, 0.16), transparent 28%),
+    radial-gradient(circle at 0% 100%, rgba(255, 107, 107, 0.10), transparent 24%),
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+}
+
 
 /* TABLET */
 @media (max-width: 980px) {
@@ -1408,7 +1545,19 @@ h1 {
   font-size: 12px;
   padding: 10px 10px;
 }
+.main-tabs .tab-button[data-section="payroll"],
+.main-tabs .tab-button[data-section="rights"],
+.main-tabs .tab-button[data-section="announcements"] {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+}
 
+.main-tabs .tab-button[data-section="payroll"].active,
+.main-tabs .tab-button[data-section="rights"].active,
+.main-tabs .tab-button[data-section="announcements"].active {
+  transform: none;
+}
+
+  
   .tab-label-wrap {
     gap: 6px;
   }
