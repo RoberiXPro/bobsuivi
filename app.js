@@ -1175,6 +1175,7 @@ announcementProfile = { initial, matricule, pseudo };
 localStorage.setItem("announcementProfile", JSON.stringify(announcementProfile));
 updatePresence(true);
 render();
+}
 
 function getNoticeMonths(seniority) {
   const rules = calculatorSettings.noticeRules || {};
