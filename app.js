@@ -101,6 +101,31 @@ function toTimestamp(value) {
 function saveReactionRegistry() {
   localStorage.setItem("announcementReactionRegistry", JSON.stringify(reactionRegistry));
 }
+function getPresenceUserKey() {
+  if (!announcementProfile) return null;
+
+  return `${String(announcementProfile.initial || "").trim().toLowerCase()}__${String(announcementProfile.matricule || "").trim().toLowerCase()}`;
+}
+
+async function updatePresence(isOnline = true) {
+  if (typeof db === "undefined" || !announcementProfile) return;
+
+  const userKey = getPresenceUserKey();
+  if (!userKey) return;
+
+  try {
+    await db.collection("presence").doc(userKey).set({
+      initial: announcementProfile.initial || "",
+      matricule: announcementProfile.matricule || "",
+      pseudo: announcementProfile.pseudo || "",
+      currentSection: currentSection || "",
+      isOnline,
+      lastSeenAt: new Date().toISOString()
+    }, { merge: true });
+  } catch (error) {
+    console.error("Erreur présence utilisateur :", error);
+  }
+}
 
 function mergeCalculatorSettings(remoteRules = {}) {
   calculatorSettings = {
@@ -1023,7 +1048,7 @@ function bindEvents() {
         submissionStatus = null;
         editingAnnouncementId = null;
       }
-
+      updatePresence(true);
       render();
     };
   });
@@ -1146,10 +1171,10 @@ function saveAnnouncementProfile() {
     return;
   }
 
-  announcementProfile = { initial, matricule, pseudo };
-  localStorage.setItem("announcementProfile", JSON.stringify(announcementProfile));
-  render();
-}
+announcementProfile = { initial, matricule, pseudo };
+localStorage.setItem("announcementProfile", JSON.stringify(announcementProfile));
+updatePresence(true);
+render();
 
 function getNoticeMonths(seniority) {
   const rules = calculatorSettings.noticeRules || {};
@@ -1615,4 +1640,16 @@ function startRealtimeListeners() {
 document.addEventListener("DOMContentLoaded", () => {
   startRealtimeListeners();
   render();
+  updatePresence(true);
+});
+  window.addEventListener("beforeunload", () => {
+  updatePresence(false);
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    updatePresence(false);
+  } else {
+    updatePresence(true);
+  }
 });
