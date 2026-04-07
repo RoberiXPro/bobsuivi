@@ -13,6 +13,13 @@ let announcementProfile = JSON.parse(localStorage.getItem("announcementProfile")
 let lastSeenAnnouncementCreatedAt = localStorage.getItem("lastSeenAnnouncementCreatedAt") || "";
 let lastSeenComplaintCreatedAt = localStorage.getItem("lastSeenComplaintCreatedAt") || "";
 let reactionRegistry = JSON.parse(localStorage.getItem("announcementReactionRegistry") || "{}");
+let currentTheme = localStorage.getItem("theme") || "soft-dark";
+
+const availableThemes = {
+  light: "Clair",
+  "soft-dark": "Moyen sombre",
+  dark: "Sombre"
+};
 
 let calculatorSettings = {
   netRate: 0.87,
@@ -101,6 +108,34 @@ function toTimestamp(value) {
 function saveReactionRegistry() {
   localStorage.setItem("announcementReactionRegistry", JSON.stringify(reactionRegistry));
 }
+function applyTheme(theme) {
+  const safeTheme = availableThemes[theme] ? theme : "soft-dark";
+  currentTheme = safeTheme;
+  document.body.setAttribute("data-theme", safeTheme);
+  localStorage.setItem("theme", safeTheme);
+}
+
+function cycleTheme(nextTheme) {
+  applyTheme(nextTheme);
+  render();
+}
+
+function renderThemeSwitcher() {
+  return `
+    <div class="theme-switcher">
+      ${Object.entries(availableThemes).map(([key, label]) => `
+        <button
+          type="button"
+          class="${currentTheme === key ? "active" : ""}"
+          data-theme-value="${key}"
+        >
+          ${label}
+        </button>
+      `).join("")}
+    </div>
+  `;
+}
+
 function getPresenceUserKey() {
   if (!announcementProfile) return null;
 
@@ -982,15 +1017,19 @@ function renderAnnouncementsView() {
 function render() {
   const app = document.getElementById("app");
 
-  app.innerHTML = `
+app.innerHTML = `
 <div class="app-shell section-${currentSection}">
-      <h1>${
-        currentSection === "payroll"
-          ? "💰 Suivi des Paies"
-          : currentSection === "rights"
-            ? "📊 Calculer son droit"
-            : "📢 Annonces & Infos"
-      }</h1>
+      <div class="topbar">
+        <h1>${
+          currentSection === "payroll"
+            ? "💰 Suivi des Paies"
+            : currentSection === "rights"
+              ? "📊 Calculer son droit"
+              : "📢 Annonces & Infos"
+        }</h1>
+
+        ${renderThemeSwitcher()}
+      </div>
 
       ${renderMainTabs()}
 
@@ -1157,7 +1196,12 @@ function bindEvents() {
       deleteOwnAnnouncement(btn.getAttribute("data-delete-announcement"));
     };
   });
-
+  document.querySelectorAll("[data-theme-value]").forEach((btn) => {
+    btn.onclick = () => {
+      cycleTheme(btn.getAttribute("data-theme-value"));
+    };
+  });
+  
   animateProgressRings();
 }
 
@@ -1639,6 +1683,7 @@ function startRealtimeListeners() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  applyTheme(currentTheme);
   startRealtimeListeners();
   render();
   updatePresence(true);
