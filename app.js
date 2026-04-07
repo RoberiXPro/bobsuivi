@@ -1044,7 +1044,7 @@ app.innerHTML = `
             : renderAnnouncementsView()
       }
 
-      <div class="app-footer">© RoberiX 2026 — Plateforme RH unifiée</div>
+      <div class="app-footer">© RoberiX 2026</div>
     </div>
   `;
 
