@@ -16,9 +16,9 @@ let reactionRegistry = JSON.parse(localStorage.getItem("announcementReactionRegi
 let currentTheme = localStorage.getItem("theme") || "soft-dark";
 
 const availableThemes = {
-  light: "Clair",
-  "soft-dark": "Moyen sombre",
-  dark: "Sombre"
+  light: { label: "Clair", icon: "☀️" },
+  "soft-dark": { label: "Mix", icon: "🌗" },
+  dark: { label: "Sombre", icon: "🌙" }
 };
 
 let calculatorSettings = {
@@ -122,14 +122,17 @@ function cycleTheme(nextTheme) {
 
 function renderThemeSwitcher() {
   return `
-    <div class="theme-switcher">
-      ${Object.entries(availableThemes).map(([key, label]) => `
+    <div class="theme-switcher premium-theme-switcher" aria-label="Choix du thème">
+      ${Object.entries(availableThemes).map(([key, config]) => `
         <button
           type="button"
           class="${currentTheme === key ? "active" : ""}"
           data-theme-value="${key}"
+          title="${config.label}"
+          aria-label="${config.label}"
         >
-          ${label}
+          <span class="theme-icon">${config.icon}</span>
+          <span class="theme-label">${config.label}</span>
         </button>
       `).join("")}
     </div>
