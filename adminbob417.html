@@ -782,14 +782,13 @@
               <label for="currentStep">Étape actuelle</label>
     <select id="currentStep">
   <option value="">Ne pas modifier</option>
-  <option value="Rien">Rien</option>
+  <option value="Rien">Aucun Traitement</option>
   <option value="Préparation des fichiers">Préparation des fichiers</option>
   <option value="Validation DAF">Validation DAF</option>
   <option value="Constat">Constat</option>
-  <option value="Signature">Signature</option>
-  <option value="Banque / Virement">Banque / Virement</option>
-  <option value="Positionné">Positionné</option>
-  <option value="Terminé">Terminé</option>
+  <option value="Signature">Signature Gérant</option>
+  <option value="Banque / Virement">Virement à la banque</option>
+  <option value="Positionné">Virement effectué</option>
 </select>
               <small>Mode choix uniquement, zéro saisie libre pour éviter les variations sauvages.</small>
             </div>
@@ -801,8 +800,8 @@
                 <option value="En attente">En attente</option>
                 <option value="En cours">En cours</option>
                 <option value="Traitement">Traitement</option>
-                <option value="Positionné">Positionné</option>
-                <option value="OK">OK</option>
+                <option value="Positionné">Virement Fait</option>
+                <option value="OK">Reçu</option>
               </select>
             </div>
 
@@ -818,49 +817,49 @@
 
             <div class="field">
               <label for="bmoi">BMOI</label>
-              <select id="bmoi">
+              <select id="statusLabel">
                 <option value="">Ne pas modifier</option>
                 <option value="En attente">En attente</option>
                 <option value="En cours">En cours</option>
                 <option value="Traitement">Traitement</option>
-                <option value="Positionné">Positionné</option>
-                <option value="OK">OK</option>
+                <option value="Positionné">Virement Fait</option>
+                <option value="OK">Reçu</option>
               </select>
             </div>
 
             <div class="field">
               <label for="mcb">MCB</label>
-              <select id="mcb">
+              <select id="statusLabel">
                 <option value="">Ne pas modifier</option>
                 <option value="En attente">En attente</option>
                 <option value="En cours">En cours</option>
                 <option value="Traitement">Traitement</option>
-                <option value="Positionné">Positionné</option>
-                <option value="OK">OK</option>
+                <option value="Positionné">Virement Fait</option>
+                <option value="OK">Reçu</option>
               </select>
             </div>
 
             <div class="field">
               <label for="bni_bred">BNI / BRED</label>
-              <select id="bni_bred">
+              <select id="statusLabel">
                 <option value="">Ne pas modifier</option>
                 <option value="En attente">En attente</option>
                 <option value="En cours">En cours</option>
                 <option value="Traitement">Traitement</option>
-                <option value="Positionné">Positionné</option>
-                <option value="OK">OK</option>
+                <option value="Positionné">Virement Fait</option>
+                <option value="OK">Reçu</option>
               </select>
             </div>
 
             <div class="field">
               <label for="boa_microcred_acces">BOA / Autres</label>
-              <select id="boa_microcred_acces">
+              <select id="statusLabel">
                 <option value="">Ne pas modifier</option>
                 <option value="En attente">En attente</option>
                 <option value="En cours">En cours</option>
                 <option value="Traitement">Traitement</option>
-                <option value="Positionné">Positionné</option>
-                <option value="OK">OK</option>
+                <option value="Positionné">Virement Fait</option>
+                <option value="OK">Reçu</option>
               </select>
             </div>
           </div>
