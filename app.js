@@ -442,9 +442,25 @@ function renderPayrollSectionBlock(key, options = {}) {
   const progress = getProgress(data);
   const title = payrollTabs[key] || options.title || "-";
   const sectionClass = options.sectionClass || "";
+  const icon = options.icon || "📌";
+  const badge = options.badge || "Section";
 
   return `
     <section class="card payroll-section-card ${sectionClass}">
+      <div class="payroll-section-banner">
+        <div class="payroll-section-banner-left">
+          <span class="payroll-section-icon">${icon}</span>
+          <div class="payroll-section-banner-text">
+            <span class="payroll-section-kicker">${badge}</span>
+            <strong class="payroll-section-banner-title">${title}</strong>
+          </div>
+        </div>
+
+        <span class="payroll-section-progress-chip progress-${getProgressTone(progress)}">
+          ${progress}%
+        </span>
+      </div>
+
       <div class="card-inner">
         <div class="hero-head payroll-section-head">
           <div>
@@ -481,19 +497,75 @@ function renderPayrollSectionBlock(key, options = {}) {
   `;
 }
 
+function renderPayrollOverview() {
+  const salaryProgress = getProgress(remoteData.monthly_pay || {});
+  const advanceProgress = getProgress(remoteData.advance_15n || {});
+  const bonusProgress = getProgress(remoteData.monthly_bonus || {});
+
+  return `
+    <div class="card payroll-overview-card">
+      <div class="card-inner">
+        <div class="payroll-overview-head">
+          <div>
+            <h2>Vue globale du suivi</h2>
+            <p class="hero-step">
+              Un aperçu rapide des trois volets paie en un seul écran.
+            </p>
+          </div>
+        </div>
+
+        <div class="payroll-overview-grid">
+          <div class="payroll-overview-item salary">
+            <div class="payroll-overview-top">
+              <span class="payroll-overview-icon">💰</span>
+              <span class="payroll-overview-label">Salaire</span>
+            </div>
+            <div class="payroll-overview-value">${salaryProgress}%</div>
+          </div>
+
+          <div class="payroll-overview-item advance">
+            <div class="payroll-overview-top">
+              <span class="payroll-overview-icon">⚡</span>
+              <span class="payroll-overview-label">Avance 15N</span>
+            </div>
+            <div class="payroll-overview-value">${advanceProgress}%</div>
+          </div>
+
+          <div class="payroll-overview-item bonus">
+            <div class="payroll-overview-top">
+              <span class="payroll-overview-icon">🎁</span>
+              <span class="payroll-overview-label">Prime</span>
+            </div>
+            <div class="payroll-overview-value">${bonusProgress}%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/*version vaovao*/
 function renderPayrollView() {
   return `
     <div class="payroll-scroll-page">
+      ${renderPayrollOverview()}
+
       ${renderPayrollSectionBlock("monthly_pay", {
-        sectionClass: "payroll-theme-salary"
+        sectionClass: "payroll-theme-salary",
+        icon: "💰",
+        badge: "Suivi salaire"
       })}
 
       ${renderPayrollSectionBlock("advance_15n", {
-        sectionClass: "payroll-theme-advance"
+        sectionClass: "payroll-theme-advance",
+        icon: "⚡",
+        badge: "Suivi avance 15N"
       })}
 
       ${renderPayrollSectionBlock("monthly_bonus", {
-        sectionClass: "payroll-theme-bonus"
+        sectionClass: "payroll-theme-bonus",
+        icon: "🎁",
+        badge: "Suivi prime"
       })}
     </div>
   `;
