@@ -462,29 +462,35 @@ function renderPayrollSectionBlock(key, options = {}) {
       </div>
 
       <div class="card-inner">
-        <div class="hero-head payroll-section-head">
-          <div>
-            <h2>${title}</h2>
-            <p class="hero-step">Étape actuelle : ${data.currentStep || "Rien"}</p>
-
-            ${
-              key === "advance_15n"
-                ? `
-                  <p class="advance-dates">
-                    Ouvert le : ${(data.openDate || advanceDates.open)}<br>
-                    Fermé le : ${(data.closeDate || advanceDates.close)}
-                  </p>
-                `
-                : ""
-            }
-          </div>
-
-          ${renderCircularProgress(progress)}
+        <div class="payroll-mobile-heading">
+          <h2>${title}</h2>
+          <span class="payroll-mobile-step">Étape actuelle : ${data.currentStep || "Rien"}</span>
         </div>
 
-        <div class="progress-summary">
-          <div class="progress-summary-text">
-            Progression actuelle estimée : <strong>${progress}%</strong>
+        ${
+          key === "advance_15n"
+            ? `
+              <div class="payroll-dates-row">
+                <p class="advance-dates">
+                  Ouvert le : ${(data.openDate || advanceDates.open)}<br>
+                  Fermé le : ${(data.closeDate || advanceDates.close)}
+                </p>
+              </div>
+            `
+            : ""
+        }
+
+        <div class="payroll-main-row">
+          <div class="payroll-progress-left">
+            ${renderCircularProgress(progress)}
+          </div>
+
+          <div class="payroll-progress-right">
+            <div class="progress-summary">
+              <div class="progress-summary-text">
+                Progression actuelle estimée : <strong>${progress}%</strong>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -514,7 +520,7 @@ function renderPayrollOverview() {
           </div>
         </div>
 
-        <div class="payroll-overview-grid">
+        <div class="payroll-overview-grid mobile-keep-horizontal">
           <div class="payroll-overview-item salary">
             <div class="payroll-overview-top">
               <span class="payroll-overview-icon">💰</span>
