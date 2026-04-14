@@ -47,9 +47,9 @@ let calculatorSettings = {
 };
 
 const payrollTabs = {
-  monthly_pay: "Paie mensuelle",
-  advance_15n: "Avance 15N",
-  monthly_bonus: "Prime mensuelle"
+  monthly_pay: "SALAIRE",
+  advance_15n: "AVANCE 15N",
+  monthly_bonus: "PRIME"
 };
 
 const rightsTabs = {
