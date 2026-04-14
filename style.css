@@ -2182,42 +2182,60 @@ body[data-theme="dark"] .state-todo {
 ========================= */
 
 .payroll-theme-salary {
-  border: 1px solid rgba(76, 148, 255, 0.26);
-  background:
-    radial-gradient(circle at top right, rgba(76, 148, 255, 0.22), transparent 30%),
-    radial-gradient(circle at bottom left, rgba(0, 212, 255, 0.14), transparent 28%),
-    linear-gradient(180deg, rgba(240, 248, 255, 0.96), rgba(227, 241, 255, 0.88));
+  border: 1px solid rgba(32, 68, 140, 0.35);
+  background: linear-gradient(135deg, #20448C 0%, #7EBCF2 100%);
+  color: #ffffff;
 }
 
 .payroll-theme-salary .progress-summary {
-  background: rgba(76, 148, 255, 0.10);
-  border-color: rgba(76, 148, 255, 0.16);
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.18);
 }
 
 .payroll-theme-advance {
-  border: 1px solid rgba(165, 92, 255, 0.26);
-  background:
-    radial-gradient(circle at top right, rgba(165, 92, 255, 0.22), transparent 30%),
-    radial-gradient(circle at bottom left, rgba(255, 153, 51, 0.16), transparent 28%),
-    linear-gradient(180deg, rgba(249, 243, 255, 0.96), rgba(241, 230, 255, 0.88));
+  border: 1px solid rgba(145, 215, 242, 0.4);
+  background: linear-gradient(135deg, #7EBCF2 0%, #91D7F2 100%);
+  color: #0f2a3a;
 }
 
 .payroll-theme-advance .progress-summary {
-  background: rgba(165, 92, 255, 0.10);
-  border-color: rgba(165, 92, 255, 0.16);
+  background: rgba(255,255,255,0.35);
+  border-color: rgba(255,255,255,0.45);
+}
+
+.payroll-theme-advance h2,
+.payroll-theme-advance .hero-step,
+.payroll-theme-advance .payroll-section-banner-title {
+  color: #0f2a3a;
+}
+
+.payroll-theme-advance .payroll-section-kicker {
+  color: rgba(15, 42, 58, 0.7);
 }
 
 .payroll-theme-bonus {
-  border: 1px solid rgba(34, 197, 94, 0.26);
-  background:
-    radial-gradient(circle at top right, rgba(34, 197, 94, 0.22), transparent 30%),
-    radial-gradient(circle at bottom left, rgba(239, 68, 68, 0.12), transparent 28%),
-    linear-gradient(180deg, rgba(241, 255, 246, 0.96), rgba(226, 248, 234, 0.88));
+  border: 1px solid rgba(191, 52, 52, 0.4);
+  background: linear-gradient(135deg, #F25749 0%, #BF3434 100%);
+  color: #ffffff;
 }
 
 .payroll-theme-bonus .progress-summary {
-  background: rgba(34, 197, 94, 0.10);
-  border-color: rgba(34, 197, 94, 0.16);
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.18);
+}
+
+.payroll-theme-bonus h2,
+.payroll-theme-bonus .hero-step,
+.payroll-theme-bonus .payroll-section-banner-title,
+.payroll-theme-bonus .payroll-section-kicker {
+  color: #ffffff;
+}
+
+.payroll-theme-salary h2,
+.payroll-theme-salary .hero-step,
+.payroll-theme-salary .payroll-section-banner-title,
+.payroll-theme-salary .payroll-section-kicker {
+  color: #ffffff;
 }
 
 /* Mode sombre */
@@ -2334,6 +2352,24 @@ body[data-theme="dark"] .payroll-theme-bonus {
   padding: 10px 12px;
 }
 
+.payroll-section-card {
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+body[data-theme="soft-dark"] .payroll-theme-salary,
+body[data-theme="dark"] .payroll-theme-salary {
+  background: linear-gradient(135deg, #162f66 0%, #4a86c9 100%);
+}
+
+body[data-theme="soft-dark"] .payroll-theme-advance,
+body[data-theme="dark"] .payroll-theme-advance {
+  background: linear-gradient(135deg, #4fa3d9 0%, #6ec8e5 100%);
+}
+
+body[data-theme="soft-dark"] .payroll-theme-bonus,
+body[data-theme="dark"] .payroll-theme-bonus {
+  background: linear-gradient(135deg, #a63232 0%, #7f1f1f 100%);
+}
 /* =========================
    TABLET
 ========================= */
@@ -2821,4 +2857,189 @@ body[data-theme="dark"] .payroll-section-progress-chip.progress-good {
     padding: 6px 10px;
     font-size: 12px;
   }
+}
+/* =========================================
+   PATCH FINAL PAIE - PALETTE ROBERT V2
+========================================= */
+
+/* Sections principales */
+.payroll-theme-salary {
+  border: 1px solid rgba(32, 68, 140, 0.35);
+  background: linear-gradient(135deg, #20448C 0%, #7EBCF2 100%);
+  color: #ffffff;
+}
+
+.payroll-theme-salary h2,
+.payroll-theme-salary .hero-step,
+.payroll-theme-salary .payroll-section-banner-title,
+.payroll-theme-salary .payroll-section-kicker,
+.payroll-theme-salary .progress-summary-text,
+.payroll-theme-salary .progress-summary-text strong,
+.payroll-theme-salary .payroll-bank-block h3 {
+  color: #ffffff;
+}
+
+.payroll-theme-salary .progress-summary {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.18);
+}
+
+.payroll-theme-advance {
+  border: 1px solid rgba(126, 188, 242, 0.42);
+  background: linear-gradient(135deg, #7EBCF2 0%, #91D7F2 100%);
+  color: #0f2a3a;
+}
+
+.payroll-theme-advance h2,
+.payroll-theme-advance .hero-step,
+.payroll-theme-advance .payroll-section-banner-title,
+.payroll-theme-advance .progress-summary-text,
+.payroll-theme-advance .progress-summary-text strong,
+.payroll-theme-advance .payroll-bank-block h3 {
+  color: #0f2a3a;
+}
+
+.payroll-theme-advance .payroll-section-kicker {
+  color: rgba(15, 42, 58, 0.72);
+}
+
+.payroll-theme-advance .progress-summary {
+  background: rgba(255,255,255,0.35);
+  border-color: rgba(255,255,255,0.45);
+}
+
+.payroll-theme-bonus {
+  border: 1px solid rgba(191, 52, 52, 0.4);
+  background: linear-gradient(135deg, #F25749 0%, #BF3434 100%);
+  color: #ffffff;
+}
+
+.payroll-theme-bonus h2,
+.payroll-theme-bonus .hero-step,
+.payroll-theme-bonus .payroll-section-banner-title,
+.payroll-theme-bonus .payroll-section-kicker,
+.payroll-theme-bonus .progress-summary-text,
+.payroll-theme-bonus .progress-summary-text strong,
+.payroll-theme-bonus .payroll-bank-block h3 {
+  color: #ffffff;
+}
+
+.payroll-theme-bonus .progress-summary {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.18);
+}
+
+/* Corrige les textes secondaires dans les cartes banques */
+.payroll-theme-salary .payroll-bank-name,
+.payroll-theme-bonus .payroll-bank-name {
+  color: #ffffff;
+}
+
+.payroll-theme-advance .payroll-bank-name {
+  color: #163247;
+}
+
+/* Dark mode cohérent avec la même palette */
+body[data-theme="soft-dark"] .payroll-theme-salary,
+body[data-theme="dark"] .payroll-theme-salary {
+  background: linear-gradient(135deg, #18366f 0%, #5f9fe0 100%);
+}
+
+body[data-theme="soft-dark"] .payroll-theme-advance,
+body[data-theme="dark"] .payroll-theme-advance {
+  background: linear-gradient(135deg, #5eaee9 0%, #91D7F2 100%);
+}
+
+body[data-theme="soft-dark"] .payroll-theme-bonus,
+body[data-theme="dark"] .payroll-theme-bonus {
+  background: linear-gradient(135deg, #cf4a40 0%, #8f2a2a 100%);
+}
+
+/* Résumé global du haut aligné avec la même palette */
+.payroll-overview-item.salary {
+  background:
+    radial-gradient(circle at top right, rgba(126, 188, 242, 0.18), transparent 32%),
+    linear-gradient(135deg, #20448C 0%, #7EBCF2 100%);
+  border-color: rgba(32, 68, 140, 0.28);
+}
+
+.payroll-overview-item.advance {
+  background:
+    radial-gradient(circle at top right, rgba(145, 215, 242, 0.18), transparent 32%),
+    linear-gradient(135deg, #7EBCF2 0%, #91D7F2 100%);
+  border-color: rgba(126, 188, 242, 0.28);
+}
+
+.payroll-overview-item.bonus {
+  background:
+    radial-gradient(circle at top right, rgba(242, 87, 73, 0.16), transparent 32%),
+    linear-gradient(135deg, #F25749 0%, #BF3434 100%);
+  border-color: rgba(191, 52, 52, 0.28);
+}
+
+.payroll-overview-item.salary .payroll-overview-label,
+.payroll-overview-item.salary .payroll-overview-value,
+.payroll-overview-item.bonus .payroll-overview-label,
+.payroll-overview-item.bonus .payroll-overview-value {
+  color: #ffffff;
+}
+
+.payroll-overview-item.advance .payroll-overview-label,
+.payroll-overview-item.advance .payroll-overview-value {
+  color: #123247;
+}
+
+/* Icônes du résumé */
+.payroll-overview-item.salary .payroll-overview-icon,
+.payroll-overview-item.bonus .payroll-overview-icon {
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.20);
+  color: #ffffff;
+}
+
+.payroll-overview-item.advance .payroll-overview-icon {
+  background: rgba(255,255,255,0.35);
+  border-color: rgba(255,255,255,0.45);
+  color: #123247;
+}
+
+/* Résumé global en dark */
+body[data-theme="soft-dark"] .payroll-overview-item.salary,
+body[data-theme="dark"] .payroll-overview-item.salary {
+  background: linear-gradient(135deg, #18366f 0%, #5f9fe0 100%);
+}
+
+body[data-theme="soft-dark"] .payroll-overview-item.advance,
+body[data-theme="dark"] .payroll-overview-item.advance {
+  background: linear-gradient(135deg, #5eaee9 0%, #91D7F2 100%);
+}
+
+body[data-theme="soft-dark"] .payroll-overview-item.bonus,
+body[data-theme="dark"] .payroll-overview-item.bonus {
+  background: linear-gradient(135deg, #cf4a40 0%, #8f2a2a 100%);
+}
+
+/* Les cartes banques restent lisibles sur sections colorées */
+.payroll-theme-salary .payroll-bank-card,
+.payroll-theme-advance .payroll-bank-card,
+.payroll-theme-bonus .payroll-bank-card {
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.16);
+  backdrop-filter: blur(10px);
+}
+
+.payroll-theme-advance .payroll-bank-card {
+  background: rgba(255,255,255,0.30);
+  border-color: rgba(255,255,255,0.34);
+}
+
+.payroll-theme-salary .payroll-bank-logo,
+.payroll-theme-bonus .payroll-bank-logo {
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.18);
+}
+
+.payroll-theme-advance .payroll-bank-logo {
+  background: rgba(255,255,255,0.45);
+  border-color: rgba(255,255,255,0.48);
 }
