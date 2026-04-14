@@ -3298,3 +3298,185 @@ body[data-theme="dark"] .payroll-overview-item.bonus {
     font-size: 14px;
   }
 }
+/* =========================================
+   PATCH V5 - SECTIONS PAIE SIMPLIFIEES
+========================================= */
+
+/* Bandeau ultra simple */
+.payroll-section-banner-simple {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+}
+
+.payroll-section-banner-simple .payroll-section-banner-text {
+  gap: 0;
+}
+
+.payroll-section-banner-simple .payroll-section-banner-title {
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-weight: 900;
+}
+
+.payroll-section-banner-simple .payroll-section-kicker {
+  display: none;
+}
+
+/* Cercle en haut à droite */
+.payroll-section-corner-progress {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.progress-ring-corner {
+  --size: 88px;
+  --thickness: 10px;
+  margin: 0;
+}
+
+.progress-ring-corner .progress-ring-value {
+  font-size: 20px;
+}
+
+/* On supprime le contenu répétitif */
+.payroll-section-body-simple {
+  padding-top: 8px;
+}
+
+.payroll-section-body-simple .payroll-mobile-heading,
+.payroll-section-body-simple .payroll-mobile-heading-compact,
+.payroll-section-body-simple .progress-summary,
+.payroll-section-body-simple .payroll-main-row,
+.payroll-section-body-simple .payroll-progress-left,
+.payroll-section-body-simple .payroll-progress-right {
+  display: none !important;
+}
+
+/* Les dates restent si présentes */
+.payroll-dates-row {
+  margin-bottom: 14px;
+}
+
+/* Lisibilité du titre des statuts */
+.payroll-bank-block h3 {
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+/* DESKTOP : états beaucoup plus visibles */
+@media (min-width: 769px) {
+  .payroll-bank-bottom .state-pill {
+    font-weight: 900;
+    backdrop-filter: blur(8px);
+    box-shadow:
+      0 8px 18px rgba(0, 0, 0, 0.10),
+      inset 0 1px 0 rgba(255,255,255,0.18);
+  }
+
+  .payroll-theme-salary .state-pill,
+  .payroll-theme-bonus .state-pill {
+    background: rgba(255,255,255,0.96);
+    border-color: rgba(255,255,255,1);
+  }
+
+  .payroll-theme-advance .state-pill {
+    background: rgba(255,255,255,0.98);
+    border-color: rgba(255,255,255,1);
+  }
+
+  .payroll-theme-salary .state-done,
+  .payroll-theme-bonus .state-done,
+  .payroll-theme-advance .state-done {
+    color: #0c7a3a;
+  }
+
+  .payroll-theme-salary .state-active,
+  .payroll-theme-bonus .state-active,
+  .payroll-theme-advance .state-active {
+    color: #9a5a00;
+  }
+
+  .payroll-theme-salary .state-todo,
+  .payroll-theme-bonus .state-todo,
+  .payroll-theme-advance .state-todo {
+    color: #7a1f1f;
+  }
+
+  .payroll-theme-salary .payroll-bank-card:hover,
+  .payroll-theme-advance .payroll-bank-card:hover,
+  .payroll-theme-bonus .payroll-bank-card:hover {
+    box-shadow: 0 16px 28px rgba(0, 0, 0, 0.14);
+  }
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .payroll-section-banner-simple {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .payroll-section-banner-simple .payroll-section-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    font-size: 16px;
+  }
+
+  .payroll-section-banner-simple .payroll-section-banner-title {
+    font-size: 16px;
+    line-height: 1.05;
+  }
+
+  .progress-ring-corner {
+    --size: 62px;
+    --thickness: 7px;
+  }
+
+  .progress-ring-corner .progress-ring-value {
+    font-size: 14px;
+  }
+
+  .payroll-section-body-simple {
+    padding-top: 6px;
+  }
+
+  .payroll-bank-block h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .payroll-dates-row {
+    margin-bottom: 10px;
+  }
+
+  .advance-dates {
+    margin-top: 0;
+    width: 100%;
+    font-size: 11px;
+    line-height: 1.35;
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+}
+
+@media (max-width: 520px) {
+  .payroll-section-banner-simple .payroll-section-banner-title {
+    font-size: 14px;
+  }
+
+  .progress-ring-corner {
+    --size: 56px;
+    --thickness: 6px;
+  }
+
+  .progress-ring-corner .progress-ring-value {
+    font-size: 12px;
+  }
+}
