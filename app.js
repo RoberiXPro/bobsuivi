@@ -392,6 +392,8 @@ function renderAnnouncementFilters() {
     </div>
   `;
 }
+
+/*MANOVA DESIGN ATAO ANATY PAGE RAY*/
 function renderCircularProgress(progress) {
   const safeProgress = Math.max(0, Math.min(100, Number(progress) || 0));
   const degrees = safeProgress * 3.6;
@@ -410,26 +412,57 @@ function renderCircularProgress(progress) {
   `;
 }
 
-function renderPayrollView() {
-  const data = remoteData[currentPayrollTab] || {};
+function renderPayrollBankGrid(data) {
+  return `
+    <div class="payroll-bank-grid">
+      ${banks.map((bank) => `
+        <div class="payroll-bank-card">
+          <div class="payroll-bank-top">
+            <div class="payroll-bank-logos">
+              ${bank.logos.map((logo) => `
+                <img src="${logo}" alt="${bank.label}" class="payroll-bank-logo">
+              `).join("")}
+            </div>
+            <div class="payroll-bank-name">${bank.label}</div>
+          </div>
+
+          <div class="payroll-bank-bottom">
+            <span class="state-pill ${getStatusClass(data[bank.key])}">
+              ${data[bank.key] || "En attente"}
+            </span>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderPayrollSectionBlock(key, options = {}) {
+  const data = remoteData[key] || {};
   const progress = getProgress(data);
+  const title = payrollTabs[key] || options.title || "-";
+  const sectionClass = options.sectionClass || "";
 
   return `
-    ${renderPayrollTabs()}
-
-    <div class="card hero-card">
+    <section class="card payroll-section-card ${sectionClass}">
       <div class="card-inner">
-        <div class="hero-head">
+        <div class="hero-head payroll-section-head">
           <div>
-            <h2>${payrollTabs[currentPayrollTab]}</h2>
-            <p class="hero-step">Étape actuelle : ${data.currentStep || "-"}</p>
-            ${currentPayrollTab === "advance_15n" ? `
-              <p class="advance-dates">
-                Ouvert le : ${(remoteData.advance_15n && remoteData.advance_15n.openDate) || advanceDates.open}<br>
-                Fermé le : ${(remoteData.advance_15n && remoteData.advance_15n.closeDate) || advanceDates.close}
-              </p>
-            ` : ""}
+            <h2>${title}</h2>
+            <p class="hero-step">Étape actuelle : ${data.currentStep || "Rien"}</p>
+
+            ${
+              key === "advance_15n"
+                ? `
+                  <p class="advance-dates">
+                    Ouvert le : ${(data.openDate || advanceDates.open)}<br>
+                    Fermé le : ${(data.closeDate || advanceDates.close)}
+                  </p>
+                `
+                : ""
+            }
           </div>
+
           ${renderCircularProgress(progress)}
         </div>
 
@@ -438,29 +471,30 @@ function renderPayrollView() {
             Progression actuelle estimée : <strong>${progress}%</strong>
           </div>
         </div>
-      </div>
-    </div>
 
-    <div class="card">
-      <div class="card-inner">
-        <h3>Statut des virements</h3>
-
-        ${banks.map((bank) => `
-          <div class="bank-row">
-            <div class="bank-left">
-              <div class="bank-logos">
-                ${bank.logos.map((logo) => `
-                  <img src="${logo}" alt="${bank.label}" class="bank-logo">
-                `).join("")}
-              </div>
-              <span class="bank-label">${bank.label}</span>
-            </div>
-            <span class="state-pill ${getStatusClass(data[bank.key])}">
-              ${data[bank.key] || "En attente"}
-            </span>
-          </div>
-        `).join("")}
+        <div class="payroll-bank-block">
+          <h3>Statut des virements</h3>
+          ${renderPayrollBankGrid(data)}
+        </div>
       </div>
+    </section>
+  `;
+}
+
+function renderPayrollView() {
+  return `
+    <div class="payroll-scroll-page">
+      ${renderPayrollSectionBlock("monthly_pay", {
+        sectionClass: "payroll-theme-salary"
+      })}
+
+      ${renderPayrollSectionBlock("advance_15n", {
+        sectionClass: "payroll-theme-advance"
+      })}
+
+      ${renderPayrollSectionBlock("monthly_bonus", {
+        sectionClass: "payroll-theme-bonus"
+      })}
     </div>
   `;
 }
