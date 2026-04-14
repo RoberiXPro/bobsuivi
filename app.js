@@ -188,14 +188,34 @@ function mergeCalculatorSettings(remoteRules = {}) {
 }
 
 function getStatusClass(value) {
-  const v = String(value || "").toLowerCase();
+  const v = String(value || "").toLowerCase().trim();
 
-  if (v === "ok" || v === "positionné" || v === "positionne" || v === "payé" || v === "paye") {
+  if (
+    v === "ok" ||
+    v === "positionné" ||
+    v === "positionne" ||
+    v === "payé" ||
+    v === "paye" ||
+    v === "virement fait" ||
+    v === "reçu" ||
+    v === "recu"
+  ) {
     return "state-done";
   }
 
-  if (v.includes("attente") || v.includes("cours") || v.includes("traitement")) {
+  if (
+    v.includes("en cours") ||
+    v.includes("traitement") ||
+    v.includes("validation") ||
+    v.includes("préparation") ||
+    v.includes("preparation") ||
+    v.includes("virement")
+  ) {
     return "state-active";
+  }
+
+  if (v.includes("attente")) {
+    return "state-todo";
   }
 
   return "state-todo";
@@ -215,17 +235,25 @@ function getProgress(data) {
     return 0;
   }
 
-  if (bmoi === "ok" || bmoi === "positionné" || bmoi === "positionne") {
-    return 100;
-  }
+if (
+  bmoi === "ok" ||
+  bmoi === "positionné" ||
+  bmoi === "positionne" ||
+  bmoi === "virement fait" ||
+  bmoi === "reçu" ||
+  bmoi === "recu"
+) {
+  return 100;
+}
 
   if (step.includes("préparation") || step.includes("preparation")) return 20;
   if (step.includes("daf")) return 40;
   if (step.includes("constat")) return 60;
   if (step.includes("sign")) return 80;
-  if (step.includes("banque") || step.includes("virement")) return 90;
-  if (step.includes("positionné") || step.includes("positionne")) return 95;
-  if (step.includes("terminé") || step.includes("termine")) return 100;
+if (step.includes("banque") || step.includes("virement")) return 90;
+if (step.includes("effectué") || step.includes("effectue")) return 100;
+if (step.includes("positionné") || step.includes("positionne")) return 95;
+if (step.includes("terminé") || step.includes("termine")) return 100;
 
   return 0;
 }
