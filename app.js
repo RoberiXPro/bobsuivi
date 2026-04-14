@@ -401,12 +401,12 @@ function renderCircularProgress(progress) {
 
   return `
     <div
-      class="progress-ring progress-${tone}"
+      class="progress-ring progress-${tone} progress-ring-corner"
       style="--progress-deg: ${degrees}deg; --target-progress: ${safeProgress};"
       aria-label="Progression ${safeProgress}%"
     >
       <div class="progress-ring-inner">
-        <span class="progress-ring-value" data-progress-value="${safeProgress}">0%</span>
+        <span class="progress-ring-value">${safeProgress}%</span>
       </div>
     </div>
   `;
@@ -443,30 +443,23 @@ function renderPayrollSectionBlock(key, options = {}) {
   const title = payrollTabs[key] || options.title || "-";
   const sectionClass = options.sectionClass || "";
   const icon = options.icon || "📌";
-  const badge = options.badge || "Section";
 
   return `
     <section class="card payroll-section-card ${sectionClass}">
-      <div class="payroll-section-banner">
+      <div class="payroll-section-banner payroll-section-banner-simple">
         <div class="payroll-section-banner-left">
           <span class="payroll-section-icon">${icon}</span>
           <div class="payroll-section-banner-text">
-            <span class="payroll-section-kicker">${badge}</span>
             <strong class="payroll-section-banner-title">${title}</strong>
           </div>
         </div>
 
-        <span class="payroll-section-progress-chip progress-${getProgressTone(progress)}">
-          ${progress}%
-        </span>
+        <div class="payroll-section-corner-progress">
+          ${renderCircularProgress(progress)}
+        </div>
       </div>
 
-      <div class="card-inner">
-        <div class="payroll-mobile-heading">
-          <h2>${title}</h2>
-          <span class="payroll-mobile-step">Étape actuelle : ${data.currentStep || "Rien"}</span>
-        </div>
-
+      <div class="card-inner payroll-section-body-simple">
         ${
           key === "advance_15n"
             ? `
@@ -479,20 +472,6 @@ function renderPayrollSectionBlock(key, options = {}) {
             `
             : ""
         }
-
-        <div class="payroll-main-row">
-          <div class="payroll-progress-left">
-            ${renderCircularProgress(progress)}
-          </div>
-
-          <div class="payroll-progress-right">
-            <div class="progress-summary">
-              <div class="progress-summary-text">
-                Progression actuelle estimée : <strong>${progress}%</strong>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <div class="payroll-bank-block">
           <h3>Statut des virements</h3>
@@ -558,20 +537,17 @@ function renderPayrollView() {
 
       ${renderPayrollSectionBlock("monthly_pay", {
         sectionClass: "payroll-theme-salary",
-        icon: "💰",
-        badge: "Suivi salaire"
+        icon: "💰"
       })}
 
       ${renderPayrollSectionBlock("advance_15n", {
         sectionClass: "payroll-theme-advance",
-        icon: "⚡",
-        badge: "Suivi avance 15N"
+        icon: "⚡"
       })}
 
       ${renderPayrollSectionBlock("monthly_bonus", {
         sectionClass: "payroll-theme-bonus",
-        icon: "🎁",
-        badge: "Suivi prime"
+        icon: "🎁"
       })}
     </div>
   `;
