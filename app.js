@@ -486,9 +486,10 @@ function renderPayrollOverview() {
   const salaryProgress = getProgress(remoteData.monthly_pay || {});
   const advanceProgress = getProgress(remoteData.advance_15n || {});
   const bonusProgress = getProgress(remoteData.monthly_bonus || {});
+
   const salaryStatus = (remoteData.monthly_pay && remoteData.monthly_pay.currentStep) || "Aucun traitement";
-const advanceStatus = (remoteData.advance_15n && remoteData.advance_15n.currentStep) || "Aucun traitement";
-const bonusStatus = (remoteData.monthly_bonus && remoteData.monthly_bonus.currentStep) || "Aucun traitement";
+  const advanceStatus = (remoteData.advance_15n && remoteData.advance_15n.currentStep) || "Aucun traitement";
+  const bonusStatus = (remoteData.monthly_bonus && remoteData.monthly_bonus.currentStep) || "Aucun traitement";
 
   return `
     <div class="card payroll-overview-card">
@@ -502,38 +503,44 @@ const bonusStatus = (remoteData.monthly_bonus && remoteData.monthly_bonus.curren
           </div>
         </div>
 
-   <div class="payroll-overview-item salary">
-  <div class="payroll-overview-top">
-    <span class="payroll-overview-icon">💰</span>
-    <span class="payroll-overview-label">Salaire</span>
-  </div>
-  <div class="payroll-overview-value-row">
-    <div class="payroll-overview-value">${salaryProgress}%</div>
-    <div class="payroll-overview-status">${salaryStatus}</div>
-  </div>
-</div>
+        <div class="payroll-overview-grid">
+          <div class="payroll-overview-item salary">
+            <div class="payroll-overview-top">
+              <span class="payroll-overview-icon">💰</span>
+              <span class="payroll-overview-label">Salaire</span>
+            </div>
+            <div class="payroll-overview-value-row">
+              <div class="payroll-overview-value">${salaryProgress}%</div>
+              <div class="payroll-overview-status">${salaryStatus}</div>
+            </div>
+          </div>
 
-<div class="payroll-overview-item advance">
-  <div class="payroll-overview-top">
-    <span class="payroll-overview-icon">⚡</span>
-    <span class="payroll-overview-label">Avance 15N</span>
-  </div>
-  <div class="payroll-overview-value-row">
-    <div class="payroll-overview-value">${advanceProgress}%</div>
-    <div class="payroll-overview-status">${advanceStatus}</div>
-  </div>
-</div>
+          <div class="payroll-overview-item advance">
+            <div class="payroll-overview-top">
+              <span class="payroll-overview-icon">⚡</span>
+              <span class="payroll-overview-label">Avance 15N</span>
+            </div>
+            <div class="payroll-overview-value-row">
+              <div class="payroll-overview-value">${advanceProgress}%</div>
+              <div class="payroll-overview-status">${advanceStatus}</div>
+            </div>
+          </div>
 
-<div class="payroll-overview-item bonus">
-  <div class="payroll-overview-top">
-    <span class="payroll-overview-icon">🎁</span>
-    <span class="payroll-overview-label">Prime</span>
-  </div>
-  <div class="payroll-overview-value-row">
-    <div class="payroll-overview-value">${bonusProgress}%</div>
-    <div class="payroll-overview-status">${bonusStatus}</div>
-  </div>
-</div>
+          <div class="payroll-overview-item bonus">
+            <div class="payroll-overview-top">
+              <span class="payroll-overview-icon">🎁</span>
+              <span class="payroll-overview-label">Prime</span>
+            </div>
+            <div class="payroll-overview-value-row">
+              <div class="payroll-overview-value">${bonusProgress}%</div>
+              <div class="payroll-overview-status">${bonusStatus}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
 
 /*version vaovao*/
 function renderPayrollView() {
